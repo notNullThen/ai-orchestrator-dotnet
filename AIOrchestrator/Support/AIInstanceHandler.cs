@@ -27,10 +27,7 @@ public class AIInstanceHandler
 
     public static string Prefix => _prefix;
 
-    public async Task ConversationAsync(string prompt)
-    {
-        await AIReplyAsync(prompt);
-    }
+    public async Task ConversationAsync(string prompt) => await AIReplyAsync(prompt);
 
     public async Task ConversationAsync()
     {

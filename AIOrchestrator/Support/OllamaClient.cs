@@ -40,7 +40,9 @@ public class OllamaClient
     {
         var json = new StreamReader(_stream).ReadLine();
         if (string.IsNullOrWhiteSpace(json))
+        {
             return new ApiResponse();
+        }
         var apiResponse = JsonSerializer.Deserialize<ApiResponse>(json, _jsonSerializerOptions)!;
         return apiResponse;
     }

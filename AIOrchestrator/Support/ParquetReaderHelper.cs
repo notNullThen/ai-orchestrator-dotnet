@@ -6,7 +6,7 @@ public class ParquetHelper
 {
     private const string _separator = "\n\n\n\n\n\n";
 
-    public static async Task<string> ReadParquetAsString(string filePath)
+    public static async Task<string> ReadParquetAsStringAsync(string filePath)
     {
         var options = new ParquetOptions { TreatByteArrayAsString = true };
 
