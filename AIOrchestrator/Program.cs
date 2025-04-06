@@ -1,9 +1,8 @@
-using AIOrchestrator;
+#pragma warning disable IDE0060 // Remove unused parameter
 
-class Program
+namespace AIOrchestrator;
+
+internal sealed class Program
 {
-	static async Task Main(string[] args)
-	{
-		await new AIOrchestrator.AIOrchestrator().StartChatAsync();
-	}
+    private static async Task Main(string[] args) => await new AIManager().StartChatAsync();
 }

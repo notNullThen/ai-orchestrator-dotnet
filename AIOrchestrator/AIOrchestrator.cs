@@ -1,19 +1,19 @@
-﻿using AIOrchestrator.Support;
+﻿namespace AIOrchestrator;
 
-namespace AIOrchestrator
+using AIOrchestrator.Support;
+
+public class AIManager
 {
-
-  public class AIOrchestrator
-  {
-    private readonly ChatHandler _chatHandler = new();
+    private readonly AIInstanceHandler _chatHandler = new();
     private readonly FilesHelper _filesHelper = new();
     private readonly ParquetHelper _parquetHelper = new();
     public async Task StartChatAsync()
     {
-      string datasetFilePath = _filesHelper.GetDatasetFilePath(DatasetFiles.RecurvMedical);
-      string datasetString = await _parquetHelper.ReadParquetAsString(datasetFilePath);
+        // var datasetFilePath = this._filesHelper.GetDatasetFilePath(DatasetFiles.RecurvMedical);
+        // var datasetString = await ParquetHelper.ReadParquetAsString(datasetFilePath);
 
-      await _chatHandler.ConversationHandlerAsync();
+        // this._chatHandler.SetDatasetContent(datasetString);
+
+        await _chatHandler.ConversationAsync();
     }
-  }
 }

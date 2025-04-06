@@ -1,5 +1,7 @@
 {
   "dotnet.defaultSolution": "AIOrchestrator.sln",
   "editor.defaultFormatter": "ms-dotnettools.csdevkit",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
 }
