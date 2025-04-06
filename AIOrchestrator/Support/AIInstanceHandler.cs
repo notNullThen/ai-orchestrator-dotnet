@@ -42,6 +42,7 @@ public class AIInstanceHandler
         _promptParts.Add(@$"
 You are {Roles.Assistant}.
 Conversation history is a JSON array of messages with defined roles.
+Don't reply with history of conversation.
 Your conversation history:
 {conversationJson}");
 
@@ -99,13 +100,9 @@ Your responses should be **very short and laconic**. Don't use quotes in start a
 
             content += response;
             Console.Write(response);
-            if (line.Done)
-            {
-                Console.Write($"{_messageSeparator}");
-                return content;
-            }
         }
 
+        Console.Write($"{_messageSeparator}");
         return content;
     }
 }
