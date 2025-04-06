@@ -74,10 +74,11 @@ Your responses should be **very short and laconic**. Don't use quotes in start a
         return conversationJson;
     }
 
+
     private async Task AIReplyAsync(string prompt)
     {
         await _ollamaClient.RequestAsync(prompt, Roles.System, _model, stream: true);
-        var content = ConsoleStreamResponseAsync();
+        var content = ConsoleStreamResponse();
         _conversation.Add(new() { Role = Roles.Assistant, Content = content });
     }
 
@@ -85,7 +86,7 @@ Your responses should be **very short and laconic**. Don't use quotes in start a
 
     public void SetModel(string model) => _model = model;
 
-    private string ConsoleStreamResponseAsync()
+    private string ConsoleStreamResponse()
     {
         Console.Write($"{_roleSeparator}{_prefix}ChatBot:\n");
         var content = string.Empty;
