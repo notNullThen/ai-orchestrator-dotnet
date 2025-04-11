@@ -3,7 +3,7 @@ namespace AIOrchestrator.Support;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class AIInstanceHandler
+public class ConversationHandler
 {
     private readonly OllamaClient _ollamaClient = new();
     private string _model = "mistral";
