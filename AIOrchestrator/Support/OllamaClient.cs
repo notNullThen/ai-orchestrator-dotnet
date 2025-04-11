@@ -16,7 +16,29 @@ public class OllamaClient
 
     private Stream _stream = Stream.Null;
 
-    public async Task RequestAsync(string prompt, Roles role, string model, bool stream = true)
+
+    public async Task<ApiResponse> RequestAsync(string prompt, Roles role, string model)
+    {
+        var url = $"{BaseUrl}/api/generate";
+
+        var client = new HttpClient();
+        var requestBody = new { model, prompt, role, stream = false };
+        var requestBodyJson = JsonSerializer.Serialize(requestBody, _jsonSerializerOptions);
+
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = new StringContent(
+                        requestBodyJson,
+                        Encoding.UTF8,
+                        "application/json")
+        };
+
+        var response = await client.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse>(responseJson, _jsonSerializerOptions)!;
+    }
+
+    public async Task RequestAsync(string prompt, Roles role, string model, bool stream)
     {
         var url = $"{BaseUrl}/api/generate";
 
@@ -36,7 +58,7 @@ public class OllamaClient
         _stream = await response.Content.ReadAsStreamAsync();
     }
 
-    public ApiResponse GetApiResponse()
+    public ApiResponse GetStreamApiResponse()
     {
         var json = new StreamReader(_stream).ReadLine();
         if (string.IsNullOrWhiteSpace(json))

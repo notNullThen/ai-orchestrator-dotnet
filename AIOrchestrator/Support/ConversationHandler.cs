@@ -95,7 +95,7 @@ Your responses should be **very short and laconic**. Don't use quotes in start a
         ApiResponse line = new() { Done = false };
         while (!line.Done)
         {
-            line = _ollamaClient.GetApiResponse();
+            line = _ollamaClient.GetStreamApiResponse();
             var response = line.Response;
 
             content += response;

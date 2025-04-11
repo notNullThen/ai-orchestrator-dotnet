@@ -4,7 +4,7 @@ namespace AIOrchestrator;
 
 using AIOrchestrator.Support;
 
-class Program
+sealed class Program
 {
     static async Task Main(string[] args)
     {
