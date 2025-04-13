@@ -8,7 +8,7 @@ using System.Text.Json;
 
 sealed class MethodInvoker
 {
-    public static Instruction[] DeserializeArray(string jsonInstruction) => JsonSerializer.Deserialize<Instruction[]>(jsonInstruction)!;
+    public static object Execute<T>(string instructionJson, T targetInstance) => Execute(Deserialize(instructionJson), targetInstance);
 
     public static object Execute<T>(Instruction instruction, T targetInstance)
     {
@@ -20,6 +20,7 @@ sealed class MethodInvoker
         return method.Invoke(targetInstance, parameters)!;
     }
 
+    public static Instruction Deserialize(string jsonInstruction) => JsonSerializer.Deserialize<Instruction>(jsonInstruction)!;
 
     private static object[] ConvertParametersForMethod(object[] rawParameters, MethodInfo method)
     {

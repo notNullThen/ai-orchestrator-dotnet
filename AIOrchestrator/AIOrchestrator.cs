@@ -11,16 +11,12 @@ public class AIManager
         Console.WriteLine("Enter your input:");
         var input = Console.ReadLine()!;
 
-        var jsonInstructions = await JsonOrchestratorAsync(input);
-        var json = MarkdownProcess.RemoveCodeMarkdown(jsonInstructions);
-        Console.WriteLine($"Processed JSON:\n{json}");
+        var instructionJsonResponse = await JsonOrchestratorAsync(input);
+        var instructionJson = MarkdownProcess.RemoveCodeMarkdown(instructionJsonResponse);
+        Console.WriteLine($"Processed JSON:\n{instructionJson}");
 
-        var instructions = MethodInvoker.DeserializeArray(json);
-        foreach (var instruction in instructions)
-        {
-            var output = MethodInvoker.Execute(instruction, this);
-            Console.WriteLine($"Output: {output}");
-        }
+        var output = MethodInvoker.Execute(instructionJson, this);
+        Console.WriteLine($"Output: {output}");
     }
 
     private async Task<string> RequestAIAsync(string prompt)
@@ -38,16 +34,14 @@ You have functions and parameters {{FunctionName(parameterName)}}:
 1. WeatherForecast(location) - returns a weather forecast for the given location.
 2. GetLocation() - returns a location name.
 
-Response should be in JSON array format:
-[    
-    {{
-       ""Function"": ""FunctionName"",
-       ""Parameters"": [""Parameter1"", ""Parameter2""]
-    }}
-]
+Response should be in JSON format:
+{{
+   ""Function"": ""FunctionName"",
+   ""Parameters"": [""Parameter1"", ""Parameter2""]
+}}
 
-Response only with JSON array format, no other text.
-Do not include any explanations, markdown like ```json or additional text.
+Response only with JSON format, no other text.
+Do not include any explanations or additional text.
 Return only JSON body.
 ";
 
