@@ -17,7 +17,7 @@ public class OllamaClient
     private Stream _stream = Stream.Null;
 
 
-    public async Task<ApiResponse> RequestAsync(string prompt, Roles role, string model)
+    public async Task<ApiResponse> RequestAsync(string prompt, string model, Roles role = Roles.User)
     {
         var url = $"{BaseUrl}/api/generate";
 
@@ -38,12 +38,12 @@ public class OllamaClient
         return JsonSerializer.Deserialize<ApiResponse>(responseJson, _jsonSerializerOptions)!;
     }
 
-    public async Task RequestAsync(string prompt, Roles role, string model, bool stream)
+    public async Task RequestStreamAsync(string prompt, string model, Roles role = Roles.User)
     {
         var url = $"{BaseUrl}/api/generate";
 
         var client = new HttpClient();
-        var requestBody = new { model, prompt, role, stream };
+        var requestBody = new { model, prompt, role, stream = true };
         var requestBodyJson = JsonSerializer.Serialize(requestBody, _jsonSerializerOptions);
 
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)

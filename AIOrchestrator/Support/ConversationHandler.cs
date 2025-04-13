@@ -6,7 +6,9 @@ using System.Text.Json.Serialization;
 public class ConversationHandler
 {
     private readonly OllamaClient _ollamaClient = new();
-    private string _model = "mistral";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+    private string _model;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     private readonly List<Message> _conversation = [];
     private readonly List<string> _promptParts = [];
     private static readonly string _prefix = "   ";
@@ -55,7 +57,10 @@ Your conversation history:
         // Task
         _promptParts.Add(@$"
 Your task is to respond to the user's input in a conversational manner.
-Your responses should be **very short and laconic**. Don't use quotes in start and end of your response.");
+Don't use quotes in start and end of your response.");
+
+        // Shortness
+        _promptParts.Add("Your responses should be **short and laconic**.\n");
 
         var prompt = string.Join("\n", _promptParts);
 
@@ -78,7 +83,7 @@ Your responses should be **very short and laconic**. Don't use quotes in start a
 
     private async Task AIReplyAsync(string prompt)
     {
-        await _ollamaClient.RequestAsync(prompt, Roles.System, _model, stream: true);
+        await _ollamaClient.RequestStreamAsync(prompt, _model);
         var content = ConsoleStreamResponse();
         _conversation.Add(new() { Role = Roles.Assistant, Content = content });
     }

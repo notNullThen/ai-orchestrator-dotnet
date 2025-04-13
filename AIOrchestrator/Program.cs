@@ -10,7 +10,9 @@ sealed class Program
     {
         if (args.Contains("--start-regular-chat"))
         {
-            await new ConversationHandler().ConversationAsync();
+            var conversationHandler = new ConversationHandler();
+            conversationHandler.SetModel("gemma3");
+            await conversationHandler.ConversationAsync();
             return;
         }
 
