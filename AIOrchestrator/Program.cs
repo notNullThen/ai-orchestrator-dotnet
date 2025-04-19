@@ -6,8 +6,14 @@ using AIOrchestrator.Support;
 
 sealed class Program
 {
+    private static readonly AIManager _aiManager = new();
+
     static async Task Main(string[] args)
     {
+        if (args.Contains("--debug"))
+        {
+            _aiManager.Debug = true;
+        }
         if (args.Contains("--start-regular-chat"))
         {
             var conversationHandler = new ConversationHandler();
@@ -16,6 +22,6 @@ sealed class Program
             return;
         }
 
-        await new AIManager().StartAsync();
+        await _aiManager.StartAsync();
     }
 }
