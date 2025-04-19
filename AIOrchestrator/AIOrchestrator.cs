@@ -1,55 +1,99 @@
 ﻿namespace AIOrchestrator;
 
 using AIOrchestrator.Support;
+using AIOrchestrator.Weather;
 
 public class AIManager
 {
-    private readonly OllamaClient _ollamaClient = new();
+    private const string _model = "gemma3";
 
-    public async Task StartAsync()
+    private static string _input = string.Empty;
+    private static string _output = string.Empty;
+
+    private readonly OllamaClient _ollamaClient = new();
+    private readonly ContextHandler<MethodInvoker.FunctionResponse> _contextHandler = new();
+
+    private string _task => @$"
+User's Input: ""{_input}""
+
+Available Functions and Parameters:
+1. **GetWeather(location)**:
+    - **Description**: Returns a weather forecast for the given location.
+    - **Parameter**: 
+        - **location** (string): The location for which to retrieve the weather forecast.
+
+2. **GetLocation()**:
+    - **Description**: Retrieves the current location.
+    - **Parameters**: None.
+
+3. **Exit()**:
+    - **Description**: Terminates the program.
+    - **Parameters**: None.
+
+**Function Call History**:
+{_contextHandler.GetContextJson()}
+
+**Instructions**:
+1. Analyze the User's Input and the Function Call History to understand the context.
+2. Check the User's Input for explicit mentions of information relevant to the available functions. If the required information is already provided in the User's Input (e.g. location is already mentioned), do not call a function to retrieve it.
+3. Determine which Function to call based on the information required to fulfill the User's Input.
+4. Before making a Function call, check the Function Call History to ensure the necessary information hasn't already been retrieved.
+5. Only call a Function if it provides new or missing information needed to answer the User's Input.
+6. If the most recent response satisfies the User's Input, call the **Exit()** Function to conclude the conversation.
+
+**Response Format**:
+Return a single Function call in JSON format, as shown below:
+{{
+    ""Function"": ""FunctionName"",
+    ""Parameters"": [""Parameter1"", ""Parameter2""]
+}}
+
+- The response must consist of only one Function.
+- Do **not** include arrays of Functions.
+- Provide **only** the JSON body—exclude any explanations or additional text.
+";
+
+    public async Task ConversationAsync()
+    {
+        var instructionJsonResponse = await RequestAIAsync(prompt: _task);
+
+        var instructionJson = MarkdownProcess.RemoveCodeMarkdown(instructionJsonResponse);
+
+        _output = (string)MethodInvoker.Execute(instructionJson, new WeatherForecast(this))!;
+
+        var functionCall = MethodInvoker.Deserialize(instructionJson);
+        var functionResponse = new MethodInvoker.FunctionResponse
+        {
+            Function = functionCall.Function,
+            Parameters = functionCall.Parameters,
+            Response = _output
+        };
+
+        _contextHandler.AddToContext(functionResponse);
+
+        await ConversationAsync();
+    }
+
+    public async Task StartAsync() // Delete
     {
         Console.WriteLine("Enter your input:");
-        var input = Console.ReadLine()!;
-
-        var instructionJsonResponse = await JsonOrchestratorAsync(input);
-        var instructionJson = MarkdownProcess.RemoveCodeMarkdown(instructionJsonResponse);
-        Console.WriteLine($"Processed JSON:\n{instructionJson}");
-
-        var output = MethodInvoker.Execute(instructionJson, this);
-        Console.WriteLine($"Output: {output}");
+        _input = Console.ReadLine()!;
+        // _input = "im going to rotterdam. can I take just tshirt?";
+        await ConversationAsync();
+        Console.WriteLine(_contextHandler.GetContextJson());
+        Console.WriteLine(_output);
     }
 
     private async Task<string> RequestAIAsync(string prompt)
     {
-        var response = await _ollamaClient.RequestAsync(prompt: prompt, model: "gemma3");
+        var response = await _ollamaClient.RequestAsync(prompt: prompt, model: _model);
         return response.Response;
     }
 
-    private async Task<string> JsonOrchestratorAsync(string input)
+    public void Exit()
     {
-        var prompt = $@"
-Analyze the input '{input}' and determine which function to call.
-
-You have functions and parameters {{FunctionName(parameterName)}}:
-1. WeatherForecast(location) - returns a weather forecast for the given location.
-2. GetLocation() - returns a location name.
-
-Response should be in JSON format:
-{{
-   ""Function"": ""FunctionName"",
-   ""Parameters"": [""Parameter1"", ""Parameter2""]
-}}
-
-Response only with JSON format, no other text.
-Do not include any explanations or additional text.
-Return only JSON body.
-";
-
-        return await RequestAIAsync(prompt);
+        Console.WriteLine(_contextHandler.GetContextJson());
+        Console.WriteLine(_output);
+        Environment.Exit(0);
     }
-
-#pragma warning disable IDE0051 // Remove unused private members
-    private static string WeatherForecast(string location) => $"Its sunny and warm in {location}";
-
-    private static string GetLocation() => "Dubai";
 }

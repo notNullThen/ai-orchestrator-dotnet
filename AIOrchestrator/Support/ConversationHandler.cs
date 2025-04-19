@@ -1,31 +1,28 @@
 namespace AIOrchestrator.Support;
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 public class ConversationHandler
 {
+    public static string HistoryName { get; set; } = "chat history";
+    private static string _task => @$"
+Your task is to respond to the user's input in a conversational manner continuing the {HistoryName} you have.
+Don't use quotes in start and end of your response.
+{HistoryName} is a JSON array of messages with defined roles.
+Don't reply with {HistoryName} or JSON format.
+Your responses should be **short and laconic**.
+";
+
+    private readonly ContextHandler<Message> _contextHandler = new();
+    private string _conversationHistoryPrompt => @$"
+Your {HistoryName}:
+{_contextHandler.GetContextJson()}";
     private readonly OllamaClient _ollamaClient = new();
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    private string _model;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    private readonly List<Message> _conversation = [];
-    private readonly List<string> _promptParts = [];
+    private string _model = "gemma3";
+    private readonly List<string> _promptParts = ["{Roles.System} message:"];
     private static readonly string _prefix = "   ";
     private static readonly string _roleSeparator = "\n";
     private static readonly string _messageSeparator = "\n\n";
 
-    private string? _datasetContent;
-
-    private static readonly JsonSerializerOptions _promptJsonSerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-        Converters =
-        {
-            new JsonStringEnumConverter()
-        }
-    };
+    public ConversationHandler() => _promptParts.Add(_task);
 
     public static string Prefix => _prefix;
 
@@ -33,62 +30,29 @@ public class ConversationHandler
 
     public async Task ConversationAsync()
     {
-        var conversationJson = UserReply();
+        UserReply();
 
-        /* PROMPT */
-
-        // Beginning
-        _promptParts.Add($"{Roles.System} message:");
-
-        // Conversation history
-        _promptParts.Add(@$"
-You are {Roles.Assistant}.
-Conversation history is a JSON array of messages with defined roles.
-Don't reply with history of conversation.
-Your conversation history:
-{conversationJson}");
-
-        // Dataset injection
-        if (!string.IsNullOrWhiteSpace(_datasetContent))
-        {
-            _promptParts.Add($"Use this dataset: {_datasetContent}.");
-        }
-
-        // Task
-        _promptParts.Add(@$"
-Your task is to respond to the user's input in a conversational manner.
-Don't use quotes in start and end of your response.");
-
-        // Shortness
-        _promptParts.Add("Your responses should be **short and laconic**.\n");
+        _promptParts.Add(_conversationHistoryPrompt);
 
         var prompt = string.Join("\n", _promptParts);
-
         await AIReplyAsync(prompt);
-
         await ConversationAsync();
     }
 
-    private string UserReply()
+    private void UserReply()
     {
         Console.Write($"{_roleSeparator}{_prefix}You:\n");
         var userInput = Console.ReadLine()!;
 
-        _conversation.Add(new() { Role = Roles.User, Content = userInput });
-        var conversationJson = JsonSerializer.Serialize(_conversation, _promptJsonSerializerOptions);
-
-        return conversationJson;
+        _contextHandler.AddToContext(new() { Role = Roles.User, Content = userInput });
     }
-
 
     private async Task AIReplyAsync(string prompt)
     {
         await _ollamaClient.RequestStreamAsync(prompt, _model);
         var content = ConsoleStreamResponse();
-        _conversation.Add(new() { Role = Roles.Assistant, Content = content });
+        _contextHandler.AddToContext(new() { Role = Roles.Assistant, Content = content });
     }
-
-    public void SetDatasetContent(string datasetContent) => _datasetContent = datasetContent;
 
     public void SetModel(string model) => _model = model;
 
