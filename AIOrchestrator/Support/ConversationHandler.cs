@@ -17,7 +17,7 @@ Your {HistoryName}:
 {_contextHandler.GetContextJson()}";
     private readonly OllamaClient _ollamaClient = new();
     private string _model = "gemma3";
-    private readonly List<string> _promptParts = ["{Roles.System} message:"];
+    private readonly List<string> _promptParts = [$"{Roles.System} message:"];
     private static readonly string _prefix = "   ";
     private static readonly string _roleSeparator = "\n";
     private static readonly string _messageSeparator = "\n\n";
