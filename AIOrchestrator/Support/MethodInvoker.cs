@@ -27,8 +27,20 @@ public static partial class MethodInvoker
         return method.Invoke(targetInstance, parameters)!;
     }
 
-    public static FunctionCall Deserialize(string jsonInstruction) =>
-        JsonSerializer.Deserialize<FunctionCall>(jsonInstruction)!;
+    public static FunctionCall Deserialize(string jsonInstruction)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<FunctionCall>(jsonInstruction)!;
+        }
+        catch (JsonException exception)
+        {
+            throw new Exception(
+                $"Failed to deserialize function call. Response was: {jsonInstruction}",
+                exception
+            );
+        }
+    }
 
     private static object[] ConvertParametersForMethod(object[] rawParameters, MethodInfo method)
     {
