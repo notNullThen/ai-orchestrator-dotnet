@@ -4,16 +4,10 @@ namespace AIOrchestrator.Support;
 using System;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using AIOrchestrator.Support.Types;
 
-public static class MethodInvoker
+public static partial class MethodInvoker
 {
-    public static object Execute<T>(string instructionJson, T targetInstance)
-    {
-        var instructionObject = Deserialize(instructionJson);
-        return Execute(instructionObject, targetInstance);
-    }
-
     public static object Execute<T>(FunctionCall instruction, T targetInstance)
     {
         var method =
@@ -48,20 +42,5 @@ public static class MethodInvoker
         }
 
         return convertedParameters;
-    }
-
-    public class FunctionCall
-    {
-        [JsonPropertyOrder(1)]
-        public required string Function { get; set; }
-
-        [JsonPropertyOrder(2)]
-        public object[] Parameters { get; set; } = [];
-    }
-
-    public class FunctionResponse : FunctionCall
-    {
-        [JsonPropertyOrder(3)]
-        public required string Response { get; set; } = string.Empty;
     }
 }

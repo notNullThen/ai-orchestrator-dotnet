@@ -14,7 +14,7 @@ public class ContextHandler<T>
 
     private static readonly List<T> _context = [];
 
-    public void AddToContext(T part) => _context.Add(part!);
+    public void AddToContext(T part) => _context.Add(part);
 
     public string GetContextJson() => JsonSerializer.Serialize(_context, _jsonSerializerOptions);
 

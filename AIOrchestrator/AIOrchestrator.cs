@@ -1,17 +1,19 @@
 ﻿namespace AIOrchestrator;
 
 using AIOrchestrator.Support;
+using AIOrchestrator.Support.OllamaClient;
+using AIOrchestrator.Support.Types;
 using AIOrchestrator.Weather;
 
 public class AIManager(string modelName)
 {
     public bool Debug { get; set; }
 
-    private static string _input = string.Empty;
-    private static string _output = string.Empty;
+    private static string? _input;
+    private static string? _output;
 
     private readonly OllamaClient _ollamaClient = new();
-    private readonly ContextHandler<MethodInvoker.FunctionResponse> _contextHandler = new();
+    private readonly ContextHandler<FunctionResponse> _contextHandler = new();
 
     private string _task =>
         @$"
@@ -56,17 +58,14 @@ Return a single Function call in JSON format, as shown below:
 
     public async Task ConversationAsync()
     {
-        var instructionJsonResponse = await RequestAIAsync(prompt: _task);
+        var function = await GetFunctionAsync(prompt: _task);
 
-        var instructionJson = MarkdownProcess.RemoveCodeMarkdown(instructionJsonResponse);
+        _output = (string)MethodInvoker.Execute(function, new WeatherForecast());
 
-        _output = (string)MethodInvoker.Execute(instructionJson, new WeatherForecast())!;
-
-        var functionCall = MethodInvoker.Deserialize(instructionJson);
-        var functionResponse = new MethodInvoker.FunctionResponse
+        var functionResponse = new FunctionResponse
         {
-            Function = functionCall.Function,
-            Parameters = functionCall.Parameters,
+            Function = function.Function,
+            Parameters = function.Parameters,
             Response = _output,
         };
 
@@ -79,19 +78,19 @@ Return a single Function call in JSON format, as shown below:
         await ConversationAsync();
     }
 
-    public async Task StartAsync() // Delete
+    public async Task StartAsync()
     {
         Console.WriteLine("Enter your input:");
-        _input = Console.ReadLine()!;
+        _input = Console.ReadLine();
         Console.WriteLine();
-        // _input = "im going to rotterdam. can I take just tshirt?";
         await ConversationAsync();
     }
 
-    private async Task<string> RequestAIAsync(string prompt)
+    private async Task<FunctionCall> GetFunctionAsync(string prompt)
     {
         var response = await _ollamaClient.RequestAsync(prompt: prompt, model: modelName);
-        return response.Response;
+        var functionJson = MarkdownProcess.RemoveCodeMarkdown(response.Response);
+        return MethodInvoker.Deserialize(functionJson);
     }
 
     public static void Exit()

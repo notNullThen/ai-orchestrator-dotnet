@@ -10,6 +10,8 @@ sealed class Program
     static async Task Main(string[] args)
     {
         HandleArguments(args);
+        // Input example: im going to rotterdam. can I take just tshirt?
+
         await _aiManager.StartAsync();
     }
 
