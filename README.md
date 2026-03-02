@@ -2,6 +2,12 @@
 
 # AIOrchestratorDotNET
 
+## Local LLM Support
+
+This solution uses [Ollama](https://ollama.com/) to run fully local large language models (LLMs).
+
+It works well with fast & light `qwen2.5-coder:7b` model.
+
 This project takes the function-calling decision on an LLM AI model: 
 - Given a user input, it selects and runs the appropriate functions.
 - Decides the order and number of functions to be called.
