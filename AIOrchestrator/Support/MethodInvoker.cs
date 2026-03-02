@@ -1,4 +1,3 @@
-#pragma warning disable IDE0040 // Add accessibility modifiers
 namespace AIOrchestrator.Support;
 
 using System;
@@ -8,6 +7,11 @@ using AIOrchestrator.Support.Types;
 
 public static partial class MethodInvoker
 {
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
+
     public static object Execute<T>(FunctionCall instruction, T targetInstance)
     {
         var method =
@@ -31,9 +35,12 @@ public static partial class MethodInvoker
     {
         try
         {
-            return JsonSerializer.Deserialize<FunctionCall>(jsonInstruction)!;
+            return JsonSerializer.Deserialize<FunctionCall>(
+                jsonInstruction,
+                _jsonSerializerOptions
+            )!;
         }
-        catch (JsonException exception)
+        catch (Exception exception)
         {
             throw new Exception(
                 $"Failed to deserialize function call. Response was: {jsonInstruction}",
@@ -50,7 +57,10 @@ public static partial class MethodInvoker
         for (var i = 0; i < rawParameters.Length; i++)
         {
             var parameterType = methodParams[i].ParameterType;
-            convertedParameters[i] = ((JsonElement)rawParameters[i]).Deserialize(parameterType)!;
+            convertedParameters[i] = ((JsonElement)rawParameters[i]).Deserialize(
+                parameterType,
+                _jsonSerializerOptions
+            )!;
         }
 
         return convertedParameters;
