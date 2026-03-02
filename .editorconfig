@@ -434,6 +434,8 @@ dotnet_naming_rule.parameters_rule.severity             = warning
 
 # Enforce using string.Empty instead of ""
 dotnet_diagnostic.IDE0010.severity = warning
+# Exception type System.Exception is not sufficiently specif
+dotnet_diagnostic.CA2201.severity = none
 
 # Disable enforcing using auto properties
 dotnet_style_prefer_auto_properties = false
