@@ -3,10 +3,9 @@
 using AIOrchestrator.Support;
 using AIOrchestrator.Weather;
 
-public class AIManager
+public class AIManager(string modelName)
 {
     public bool Debug { get; set; }
-    private const string _model = "gemma3";
 
     private static string _input = string.Empty;
     private static string _output = string.Empty;
@@ -91,7 +90,7 @@ Return a single Function call in JSON format, as shown below:
 
     private async Task<string> RequestAIAsync(string prompt)
     {
-        var response = await _ollamaClient.RequestAsync(prompt: prompt, model: _model);
+        var response = await _ollamaClient.RequestAsync(prompt: prompt, model: modelName);
         return response.Response;
     }
 
