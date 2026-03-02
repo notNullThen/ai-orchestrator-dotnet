@@ -1,10 +1,9 @@
-namespace AIOrchestrator.Weather;
+namespace AIOrchestrator.Application;
 
 using AIOrchestrator.Support.Types;
 
 public class WeatherForecast : AiFacadeBase
 {
-#pragma warning disable IDE0051 // Remove unused private members
     private static string GetWeather(string location) => $"It's sunny and warm in {location}";
 
     private static string GetLocation() => "Dubai";

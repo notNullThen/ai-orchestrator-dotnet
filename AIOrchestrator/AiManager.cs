@@ -1,9 +1,9 @@
 ﻿namespace AIOrchestrator;
 
+using AIOrchestrator.Application;
 using AIOrchestrator.Support;
 using AIOrchestrator.Support.OllamaClient;
 using AIOrchestrator.Support.Types;
-using AIOrchestrator.Weather;
 
 public class AiManager(string modelName)
 {
