@@ -83,19 +83,21 @@ Return a single Function call in JSON format, as shown below:
     {
         var response = await _ollamaClient.RequestAsync(prompt: prompt, model: modelName);
         var functionJson = MarkdownProcess.RemoveCodeMarkdown(response.Response);
-        return MethodInvoker.Deserialize(functionJson);
+        try
+        {
+            return MethodInvoker.Deserialize(functionJson);
+        }
+        catch (Exception exception)
+        {
+            throw new Exception(
+                $"Failed to deserialize function call. Response was: {response.Response}",
+                exception
+            );
+        }
     }
 
     public static void Exit()
     {
-        if (_debug)
-        {
-            var function = new FunctionCall() { Function = nameof(Exit) };
-
-            Console.WriteLine(
-                JsonSerializer.Serialize(function, FancyJsonOptions.SerializerOptions)
-            );
-        }
         Console.WriteLine($"\nOutput:\n{_output}");
         Environment.Exit(0);
     }
