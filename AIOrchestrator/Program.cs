@@ -5,7 +5,7 @@ sealed class Program
 {
     private const string _modelName = "qwen2.5:7b";
 
-    private static readonly AIManager _aiManager = new(modelName: _modelName);
+    private static readonly AiManager _aiManager = new(modelName: _modelName);
 
     static async Task Main(string[] args)
     {
@@ -18,7 +18,7 @@ sealed class Program
     {
         if (args.Contains("--debug"))
         {
-            _aiManager.Debug = true;
+            AiManager.SetDebug(true);
         }
     }
 }

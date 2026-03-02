@@ -19,7 +19,7 @@ public static partial class MethodInvoker
                     | BindingFlags.NonPublic
             )
             ?? throw new MissingMethodException(
-                $"Method {instruction.Function} not found in {typeof(T).Name}."
+                $"Method {instruction.Function}() not found in {typeof(T).Name} class."
             );
 
         var parameters = ConvertParametersForMethod(instruction.Parameters, method);

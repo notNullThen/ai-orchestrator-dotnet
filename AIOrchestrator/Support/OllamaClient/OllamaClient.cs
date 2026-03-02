@@ -11,11 +11,6 @@ public class OllamaClient
 
     private readonly HttpClient _httpClient = new();
 
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public async Task<ApiResponse> RequestAsync(string prompt, string model, Role role = Role.User)
     {
         var requestMessage = GetRequestMessage(
@@ -32,9 +27,9 @@ public class OllamaClient
         return await GetResponseAsync(requestMessage);
     }
 
-    public HttpRequestMessage GetRequestMessage(string url, ApiRequest request)
+    public static HttpRequestMessage GetRequestMessage(string url, ApiRequest request)
     {
-        var requestBodyJson = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+        var requestBodyJson = JsonSerializer.Serialize(request);
         return new HttpRequestMessage(HttpMethod.Post, url)
         {
             Content = new StringContent(requestBodyJson, Encoding.UTF8, "application/json"),
@@ -48,6 +43,6 @@ public class OllamaClient
             HttpCompletionOption.ResponseHeadersRead
         );
         var responseJson = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<ApiResponse>(responseJson, _jsonSerializerOptions)!;
+        return JsonSerializer.Deserialize<ApiResponse>(responseJson)!;
     }
 }
