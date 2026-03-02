@@ -1,7 +1,5 @@
 ﻿namespace AIOrchestrator;
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using AIOrchestrator.Support;
 using AIOrchestrator.Support.OllamaClient;
 using AIOrchestrator.Support.Types;
