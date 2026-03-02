@@ -11,29 +11,38 @@ public class OllamaClient
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
     };
 
     private Stream _stream = Stream.Null;
 
-
-    public async Task<ApiResponse> RequestAsync(string prompt, string model, Roles role = Roles.User)
+    public async Task<ApiResponse> RequestAsync(
+        string prompt,
+        string model,
+        Roles role = Roles.User
+    )
     {
         var url = $"{BaseUrl}/api/generate";
 
         var client = new HttpClient();
-        var requestBody = new { model, prompt, role, stream = false };
+        var requestBody = new
+        {
+            model,
+            prompt,
+            role,
+            stream = false,
+        };
         var requestBodyJson = JsonSerializer.Serialize(requestBody, _jsonSerializerOptions);
 
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
         {
-            Content = new StringContent(
-                        requestBodyJson,
-                        Encoding.UTF8,
-                        "application/json")
+            Content = new StringContent(requestBodyJson, Encoding.UTF8, "application/json"),
         };
 
-        var response = await client.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
+        var response = await client.SendAsync(
+            requestMessage,
+            HttpCompletionOption.ResponseHeadersRead
+        );
         var responseJson = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<ApiResponse>(responseJson, _jsonSerializerOptions)!;
     }
@@ -43,18 +52,24 @@ public class OllamaClient
         var url = $"{BaseUrl}/api/generate";
 
         var client = new HttpClient();
-        var requestBody = new { model, prompt, role, stream = true };
+        var requestBody = new
+        {
+            model,
+            prompt,
+            role,
+            stream = true,
+        };
         var requestBodyJson = JsonSerializer.Serialize(requestBody, _jsonSerializerOptions);
 
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
         {
-            Content = new StringContent(
-                        requestBodyJson,
-                        Encoding.UTF8,
-                        "application/json")
+            Content = new StringContent(requestBodyJson, Encoding.UTF8, "application/json"),
         };
 
-        var response = await client.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
+        var response = await client.SendAsync(
+            requestMessage,
+            HttpCompletionOption.ResponseHeadersRead
+        );
         _stream = await response.Content.ReadAsStreamAsync();
     }
 
@@ -68,8 +83,8 @@ public class OllamaClient
         var apiResponse = JsonSerializer.Deserialize<ApiResponse>(json, _jsonSerializerOptions)!;
         return apiResponse;
     }
-
 }
+
 public class Message
 {
     [JsonPropertyName("role")]
@@ -96,7 +111,7 @@ public enum Roles
     System = 0,
     User = 1,
     Assistant = 2,
-    Tool = 3
+    Tool = 3,
 }
 
 public class ApiResponse

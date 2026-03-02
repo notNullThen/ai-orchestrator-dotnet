@@ -3,7 +3,8 @@ namespace AIOrchestrator.Support;
 public class ConversationHandler
 {
     public static string HistoryName { get; set; } = "chat history";
-    private static string _task => @$"
+    private static string _task =>
+        @$"
 Your task is to respond to the user's input in a conversational manner continuing the {HistoryName} you have.
 Don't use quotes in start and end of your response.
 {HistoryName} is a JSON array of messages with defined roles.
@@ -12,7 +13,8 @@ Your responses should be **short and laconic**.
 ";
 
     private readonly ContextHandler<Message> _contextHandler = new();
-    private string _conversationHistoryPrompt => @$"
+    private string _conversationHistoryPrompt =>
+        @$"
 Your {HistoryName}:
 {_contextHandler.GetContextJson()}";
     private readonly OllamaClient _ollamaClient = new();

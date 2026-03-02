@@ -9,12 +9,15 @@ public class ContextHandler<T>
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() }
+        Converters = { new JsonStringEnumConverter() },
     };
 
     private static readonly List<T> _context = [];
 
     public void AddToContext(T part) => _context.Add(part!);
+
     public string GetContextJson() => JsonSerializer.Serialize(_context, _jsonSerializerOptions);
-    public string GetLastContextPartJson() => JsonSerializer.Serialize(_context.LastOrDefault(), _jsonSerializerOptions);
+
+    public string GetLastContextPartJson() =>
+        JsonSerializer.Serialize(_context.LastOrDefault(), _jsonSerializerOptions);
 }

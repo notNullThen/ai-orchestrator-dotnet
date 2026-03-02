@@ -14,7 +14,8 @@ public class AIManager
     private readonly OllamaClient _ollamaClient = new();
     private readonly ContextHandler<MethodInvoker.FunctionResponse> _contextHandler = new();
 
-    private string _task => @$"
+    private string _task =>
+        @$"
 User's Input: ""{_input}""
 
 **Available Functions and Parameters**:
@@ -67,7 +68,7 @@ Return a single Function call in JSON format, as shown below:
         {
             Function = functionCall.Function,
             Parameters = functionCall.Parameters,
-            Response = _output
+            Response = _output,
         };
 
         _contextHandler.AddToContext(functionResponse);
