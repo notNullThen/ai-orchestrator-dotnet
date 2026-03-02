@@ -8,8 +8,11 @@ using System.Text.Json.Serialization;
 
 public static class MethodInvoker
 {
-    public static object Execute<T>(string instructionJson, T targetInstance) =>
-        Execute(Deserialize(instructionJson), targetInstance);
+    public static object Execute<T>(string instructionJson, T targetInstance)
+    {
+        var instructionObject = Deserialize(instructionJson);
+        return Execute(instructionObject, targetInstance);
+    }
 
     public static object Execute<T>(FunctionCall instruction, T targetInstance)
     {
