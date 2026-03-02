@@ -11,7 +11,6 @@ sealed class Program
     {
         HandleArguments(args);
         // Input example: im going to rotterdam. can I take just tshirt?
-
         await _aiManager.StartAsync();
     }
 
