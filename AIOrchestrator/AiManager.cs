@@ -18,32 +18,25 @@ public class AiManager(string modelName)
 
     private string _task =>
         @$"
-User's Input: ""{_input}""
+# SYSTEM
+You are a function-calling engine. 
+Available Tools: {_weatherForecast.GetDescription()}
 
-**Available Functions and Parameters**:
-{_weatherForecast.GetDescription()}
+# CONTEXT
+User Input: ""{_input}""
+History: {_contextHandler.GetContextJson()}
 
-**Functions Call History**:
-{_contextHandler.GetContextJson()}
+# CONSTRAINTS
+1. If History already contains the answer, call {nameof(Exit)}().
+2. Never repeat a function call found in History.
+3. Correct grammar/casing in parameters.
+4. Return ONLY raw JSON. No markdown, no backticks.
 
-**Instructions**:
-1. Analyze the User's Input and the Functions Call History to understand the context.
-2. Check the User's Input for explicit mentions of information relevant to the available functions. If the required information is already provided in the User's Input (e.g. location is already mentioned), do not call a function to retrieve it. Use information from the User's Input directly.
-3. Determine which Function to call based on the information required to fulfill the User's Input.
-4. If some function is shown in the Functions Call History, **do not call this function**. Instead, use the information from that function response.
-5. If you don't have enough information to fulfill the User's Input, call the function you need to make this information appear in Functions Call History.
-6. If the most recent response satisfies the User's Input, call the **{nameof(Exit)}()** Function to conclude the conversation.
-
-**Response Format**:
-Return a single Function call in JSON format, as shown below:
+# RESPONSE FORMAT
 {{
-    ""Function"": ""FunctionName"",
-    ""Parameters"": [""Parameter1"", ""Parameter2""]
+  ""Function"": ""string"",
+  ""Parameters"": []
 }}
-
-- The response must consist of only one Function.
-- Do **not** include arrays of Functions.
-- Provide **only** the JSON body—exclude any explanations or additional text.
 ";
 
     public static void SetDebug(bool debug) => _debug = debug;

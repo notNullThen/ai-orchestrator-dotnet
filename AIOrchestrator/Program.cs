@@ -3,7 +3,7 @@ namespace AIOrchestrator;
 
 sealed class Program
 {
-    private const string _modelName = "qwen2.5:7b";
+    private const string _modelName = "qwen2.5-coder:7b";
 
     private static readonly AiManager _aiManager = new(modelName: _modelName);
 
