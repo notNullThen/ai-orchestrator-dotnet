@@ -1,29 +1,37 @@
-# AI Orchestrator
 
-This project implements AI Orchestration, using one AI model as an "orchestrator" to manage other AI models.
 
-It is built to be universal for various tasks assigned to each model.
+# AIOrchestratorDotNET
 
-The goal is to achieve easy management of the complex logic or systems of AI models and their interactions.
+This project takes the function-calling decision on an LLM AI model: 
+- Given a user input, it selects and runs the appropriate functions.
+- Decides the order and number of functions to be called.
+- Decides when to stop the processing and return results.
+- Considers the context automatically.
 
-## Features
+This enables seamless, intuitive, human-decision-based orchestration of logic in .NET applications.
 
-- **Context Handling:** Relies on it's own chat history management for context understanding.
-- **Parquet File Support:** Reads Parquet datasets and transfers them as strings for AI consumption.
-- **Expandable for AI Orchestration:** Project is under development to incorporate AI orchestration capabilities.
-- **AI:** Designed as a universal solution to work with different AI models. Currently functional with Ollama.
+## Quick Start
 
-## Requirements
+1. **Install [.NET 10.0 SDK](https://dotnet.microsoft.com/download)**
+2. **Clone and enter the repo:**
+   ```bash
+   git clone https://github.com/notNullThen/AIOrchestratorDotNET.git
+   cd AIOrchestratorDotNET
+   ```
+3. **Run the app (with debug details):**
+   ```bash
+   dotnet run  --project AIOrchestrator/AIOrchestrator.csproj --debug
+   ```
 
-- .NET Framework
-- Ollama API accessible at `http://localhost:11434`
 
-## How to Use
+## Project Overview
 
-1. Set up Ollama API.
-2. Run the project.
-3. Interact with the chat system and explore Parquet dataset integration.
+- Decides which function to call based on user input
+- Main logic: `AIOrchestrator/AiManager.cs`
+- Entry point: `AIOrchestrator/Program.cs`
+- Functions and their descriptions can be changed in the `Application` folder.
+- The flexible—AI approach uses the descriptions to handle and route logic as needed.
+- Extend with modules in `AIOrchestrator/Support/`
 
 ---
-
-This project is a work in progress. Contributions and feedback are welcome!
+MIT License | Author: [notNullThen](https://github.com/notNullThen)
