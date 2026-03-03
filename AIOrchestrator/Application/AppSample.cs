@@ -1,3 +1,5 @@
+#pragma warning disable CA1822 // Mark members as static
+
 namespace AIOrchestrator.Application;
 
 using AIOrchestrator.Support.Types;

@@ -1,11 +1,10 @@
 ﻿namespace AIOrchestrator;
 
-using AIOrchestrator.Application;
 using AIOrchestrator.Support;
 using AIOrchestrator.Support.OllamaClient;
 using AIOrchestrator.Support.Types;
 
-public class AiManager(string modelName)
+public class AiManager(string modelName, AiFacadeBase appInstance)
 {
     private static bool _debug { get; set; }
 
@@ -14,13 +13,12 @@ public class AiManager(string modelName)
 
     private readonly OllamaClient _ollamaClient = new();
     private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
-    private readonly AppSample _appSample = new();
 
     private string _task =>
         @$"
 # SYSTEM
 You are a function-calling engine. 
-Available Tools: {_appSample.GetDescription()}
+Available Tools: {appInstance.GetDescription()}
 
 # CONTEXT
 User Input: ""{_userInput}""
@@ -45,7 +43,7 @@ History: {_contextHandler.GetContextJson()}
     {
         var function = await GetFunctionAsync(prompt: _task);
 
-        _aiOutput = (string)MethodInvoker.Execute(function, _appSample);
+        _aiOutput = (string)MethodInvoker.Execute(function, appInstance);
 
         var functionResponse = new FunctionCallResponse
         {
