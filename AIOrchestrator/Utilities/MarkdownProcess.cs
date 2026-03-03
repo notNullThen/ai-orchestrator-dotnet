@@ -1,4 +1,4 @@
-namespace AIOrchestrator.Support;
+namespace AIOrchestrator.Utilities;
 
 public class MarkdownProcess
 {

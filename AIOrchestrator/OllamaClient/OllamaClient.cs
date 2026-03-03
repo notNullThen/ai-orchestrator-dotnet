@@ -1,9 +1,9 @@
-namespace AIOrchestrator.Support.OllamaClient;
+namespace AIOrchestrator.OllamaClient;
 
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AIOrchestrator.Support.OllamaClient.Types;
+using AIOrchestrator.Infrastructure.OllamaClient.Types;
 
 public class OllamaClient
 {

@@ -1,9 +1,9 @@
-namespace AIOrchestrator.Support;
+namespace AIOrchestrator.Utilities;
 
 using System;
 using System.Reflection;
 using System.Text.Json;
-using AIOrchestrator.Support.Types;
+using AIOrchestrator.Core;
 
 public static partial class MethodInvoker
 {

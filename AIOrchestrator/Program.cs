@@ -2,6 +2,7 @@
 namespace AIOrchestrator;
 
 using AIOrchestrator.Application;
+using AIOrchestrator.Core;
 
 sealed class Program
 {

@@ -1,4 +1,4 @@
-namespace AIOrchestrator.Support.OllamaClient.Types;
+namespace AIOrchestrator.Infrastructure.OllamaClient.Types;
 
 public enum Role
 {

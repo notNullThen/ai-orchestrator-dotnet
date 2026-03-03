@@ -1,4 +1,4 @@
-namespace AIOrchestrator.Support.Types;
+namespace AIOrchestrator.Core;
 
 using System.Text.Json.Serialization;
 

@@ -2,7 +2,7 @@
 
 namespace AIOrchestrator.Application;
 
-using AIOrchestrator.Support.Types;
+using AIOrchestrator.Core;
 
 public class AppSample : AiFacadeBase
 {
