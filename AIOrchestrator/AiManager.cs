@@ -14,7 +14,7 @@ public class AiManager(string modelName, AiFacadeBase appInstance)
     private readonly OllamaClient _ollamaClient = new();
     private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
 
-    private string _task =>
+    private string _managementPrompt =>
         @$"
 # SYSTEM
 You are a function-calling engine. 
@@ -41,7 +41,7 @@ History: {_contextHandler.GetContextJson()}
 
     public async Task ConversationAsync()
     {
-        var function = await GetFunctionAsync(prompt: _task);
+        var function = await GetFunctionAsync(prompt: _managementPrompt);
 
         _aiOutput = (string)MethodInvoker.Execute(function, appInstance);
 
