@@ -16,7 +16,8 @@ public class AiManager(string modelName, AiFacadeBase appInstance)
     private string _managementPrompt =>
         @$"
 # SYSTEM
-You are a function-calling engine. 
+You are a function-calling engine.
+You are FORBIDDEN from guessing, inventing, or using placeholders.
 Available Tools: {appInstance.GetDescription()}
 
 # CONTEXT
