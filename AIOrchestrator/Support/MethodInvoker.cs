@@ -15,15 +15,17 @@ public static partial class MethodInvoker
     public static object Execute<T>(FunctionCall instruction, T targetInstance)
     {
         var method =
-            typeof(T).GetMethod(
-                instruction.Function,
-                BindingFlags.Instance
-                    | BindingFlags.Static
-                    | BindingFlags.Public
-                    | BindingFlags.NonPublic
-            )
+            targetInstance!
+                .GetType()
+                .GetMethod(
+                    instruction.Function,
+                    BindingFlags.Instance
+                        | BindingFlags.Static
+                        | BindingFlags.Public
+                        | BindingFlags.NonPublic
+                )
             ?? throw new MissingMethodException(
-                $"Method {instruction.Function}() not found in {typeof(T).Name} class."
+                $"Method {instruction.Function}() not found in {targetInstance.GetType().Name} class."
             );
 
         var parameters = ConvertParametersForMethod(instruction.Parameters, method);
