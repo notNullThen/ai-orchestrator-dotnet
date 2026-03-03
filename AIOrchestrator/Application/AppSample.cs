@@ -2,11 +2,11 @@ namespace AIOrchestrator.Application;
 
 using AIOrchestrator.Support.Types;
 
-public class WeatherForecast : AiFacadeBase
+public class AppSample : AiFacadeBase
 {
-    private static string GetWeather(string location) => $"It's sunny and warm in {location}";
+    private string GetWeather(string location) => $"It's sunny and warm in {location}";
 
-    private static string GetLocation() => "Dubai";
+    private string GetLocation() => "Dubai";
 
     public override string GetDescription() =>
         @$"

@@ -9,21 +9,21 @@ public class AiManager(string modelName)
 {
     private static bool _debug { get; set; }
 
-    private static string? _input;
-    private static string? _output;
+    private static string? _userInput;
+    private static string? _aiOutput;
 
     private readonly OllamaClient _ollamaClient = new();
     private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
-    private readonly WeatherForecast _weatherForecast = new();
+    private readonly AppSample _appSample = new();
 
     private string _task =>
         @$"
 # SYSTEM
 You are a function-calling engine. 
-Available Tools: {_weatherForecast.GetDescription()}
+Available Tools: {_appSample.GetDescription()}
 
 # CONTEXT
-User Input: ""{_input}""
+User Input: ""{_userInput}""
 History: {_contextHandler.GetContextJson()}
 
 # CONSTRAINTS
@@ -45,13 +45,13 @@ History: {_contextHandler.GetContextJson()}
     {
         var function = await GetFunctionAsync(prompt: _task);
 
-        _output = (string)MethodInvoker.Execute(function, _weatherForecast);
+        _aiOutput = (string)MethodInvoker.Execute(function, _appSample);
 
         var functionResponse = new FunctionCallResponse
         {
             Function = function.Function,
             Parameters = function.Parameters,
-            Response = _output,
+            Response = _aiOutput,
         };
         _contextHandler.AddToContext(functionResponse);
         if (_debug)
@@ -65,7 +65,7 @@ History: {_contextHandler.GetContextJson()}
     public async Task StartAsync()
     {
         Console.WriteLine("Enter your input:");
-        _input = Console.ReadLine();
+        _userInput = Console.ReadLine();
         Console.WriteLine();
         await ConversationAsync();
     }
@@ -89,7 +89,7 @@ History: {_contextHandler.GetContextJson()}
 
     public static void Exit()
     {
-        Console.WriteLine($"\nOutput:\n{_output}");
+        Console.WriteLine($"\nOutput:\n{_aiOutput}");
         Environment.Exit(0);
     }
 }
