@@ -1,10 +1,22 @@
 namespace AIOrchestrator.Core;
 
+using System;
+
 public abstract class AiFacadeBase()
 {
-#pragma warning disable CA1822 // Mark members as static
-    protected void Exit() => AiManager.Exit();
-#pragma warning restore CA1822 // Mark members as static
+    public Action? OnExit { get; set; }
+
+    protected void Exit()
+    {
+        if (OnExit == null)
+        {
+            throw new Exception(
+                $"The {nameof(OnExit)} action is not set. Set it in {nameof(AiManager)} class."
+            );
+        }
+
+        OnExit.Invoke();
+    }
 
     public abstract string GetDescription();
 }

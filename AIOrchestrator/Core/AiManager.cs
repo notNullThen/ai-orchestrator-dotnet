@@ -5,10 +5,10 @@ using AIOrchestrator.Utilities;
 
 public class AiManager(string modelName, AiFacadeBase appInstance)
 {
-    private static bool _debug { get; set; }
+    private bool _debug { get; set; }
 
-    private static string? _userInput;
-    private static string? _aiOutput;
+    private string? _userInput;
+    private string? _aiOutput;
 
     private readonly OllamaClient _ollamaClient = new();
     private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
@@ -36,7 +36,7 @@ History: {_contextHandler.GetContextJson()}
 }}
 ";
 
-    public static void SetDebug(bool debug) => _debug = debug;
+    public void SetDebug(bool debug) => _debug = debug;
 
     public async Task ConversationAsync()
     {
@@ -61,6 +61,7 @@ History: {_contextHandler.GetContextJson()}
 
     public async Task StartAsync()
     {
+        appInstance.OnExit = Exit;
         Console.WriteLine("Enter your input:");
         _userInput = Console.ReadLine();
         Console.WriteLine();
@@ -84,7 +85,7 @@ History: {_contextHandler.GetContextJson()}
         }
     }
 
-    public static void Exit()
+    public void Exit()
     {
         Console.WriteLine($"\nOutput:\n{_aiOutput}");
         Environment.Exit(0);
