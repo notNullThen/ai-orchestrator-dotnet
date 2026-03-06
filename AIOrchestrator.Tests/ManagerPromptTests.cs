@@ -48,7 +48,7 @@ public sealed class ManagerPromptTests
                 $"Should use the location from the first call as parameter for the {nameof(AppSample.GetWeather)}() function."
             );
 
-            Assert.HasCount(3, context, "Might have called more functions than expected.");
+            Assert.HasCount(3, context, "Might have called less functions than expected.");
         }
     }
 
