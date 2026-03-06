@@ -2,7 +2,7 @@ namespace AIOrchestrator.Infrastructure.OllamaClient.Types;
 
 using System.Text.Json.Serialization;
 
-public class ApiResponse
+internal sealed class ApiResponse
 {
     [JsonPropertyName("model")]
     public required string Model { get; set; }

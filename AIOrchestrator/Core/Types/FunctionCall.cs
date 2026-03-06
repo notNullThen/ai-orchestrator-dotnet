@@ -2,7 +2,7 @@ namespace AIOrchestrator.Core;
 
 using System.Text.Json.Serialization;
 
-public class FunctionCall
+internal class FunctionCall
 {
     [JsonPropertyOrder(1)]
     public required string Function { get; set; }

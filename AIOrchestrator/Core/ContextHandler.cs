@@ -3,7 +3,7 @@ namespace AIOrchestrator.Core;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class ContextHandler<T>
+internal sealed class ContextHandler<T>
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {

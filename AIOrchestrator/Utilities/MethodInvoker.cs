@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text.Json;
 using AIOrchestrator.Core;
 
-public static partial class MethodInvoker
+internal static class MethodInvoker
 {
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {

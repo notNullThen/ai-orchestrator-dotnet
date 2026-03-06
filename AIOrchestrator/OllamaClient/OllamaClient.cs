@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AIOrchestrator.Infrastructure.OllamaClient.Types;
 
-public class OllamaClient
+internal sealed class OllamaClient
 {
     private const string BaseUrl = "http://localhost:11434";
 

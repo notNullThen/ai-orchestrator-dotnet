@@ -2,7 +2,7 @@ namespace AIOrchestrator.Infrastructure.OllamaClient.Types;
 
 using System.Text.Json.Serialization;
 
-public class Message
+internal sealed class Message
 {
     [JsonPropertyName("role")]
     public required Role Role { get; set; }
