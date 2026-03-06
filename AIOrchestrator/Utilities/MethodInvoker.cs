@@ -1,5 +1,6 @@
 namespace AIOrchestrator.Utilities;
 
+using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
 using AIOrchestrator.Core.Types;
@@ -50,7 +51,7 @@ internal static class MethodInvoker
         }
     }
 
-    private static object[] ConvertParametersForMethod(object[] rawParameters, MethodInfo method)
+    private static object[] ConvertParametersForMethod(string[] rawParameters, MethodInfo method)
     {
         var methodParams = method.GetParameters();
         var convertedParameters = new object[rawParameters.Length];
@@ -58,10 +59,9 @@ internal static class MethodInvoker
         for (var i = 0; i < rawParameters.Length; i++)
         {
             var parameterType = methodParams[i].ParameterType;
-            convertedParameters[i] = ((JsonElement)rawParameters[i]).Deserialize(
-                parameterType,
-                _jsonSerializerOptions
-            )!;
+
+            var converter = TypeDescriptor.GetConverter(parameterType);
+            convertedParameters[i] = converter.ConvertFromString(rawParameters[i])!;
         }
 
         return convertedParameters;

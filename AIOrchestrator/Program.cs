@@ -18,7 +18,10 @@ sealed class Program
     static async Task Main(string[] args)
     {
         HandleArguments(args);
-        await _aiManager.StartAsync();
+        Console.WriteLine("Enter your input:");
+        var userInput = Console.ReadLine()!;
+        Console.WriteLine();
+        await _aiManager.StartAsync(userInput);
     }
 
     static void HandleArguments(string[] args)

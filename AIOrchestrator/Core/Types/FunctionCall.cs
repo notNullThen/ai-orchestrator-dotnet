@@ -8,5 +8,5 @@ internal class FunctionCall
     public required string Function { get; set; }
 
     [JsonPropertyOrder(2)]
-    public object[] Parameters { get; set; } = [];
+    public string[] Parameters { get; set; } = [];
 }

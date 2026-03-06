@@ -11,9 +11,10 @@ internal sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 
     private string? _userInput;
     private string? _aiOutput;
+    private bool _shouldExit;
 
     private readonly OllamaClient _ollamaClient = new();
-    private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
+    public readonly ContextHandler<FunctionCallResponse> ContextHandler = new();
 
     private string _managementPrompt =>
         @$"
@@ -24,7 +25,7 @@ Available Tools: {appInstance.GetDescription()}
 
 # CONTEXT
 User Input: ""{_userInput}""
-History: {_contextHandler.GetContextJson()}
+History: {ContextHandler.GetContextJson()}
 
 # CONSTRAINTS
 1. If History already contains the answer, call {nameof(Exit)}().
@@ -43,6 +44,11 @@ History: {_contextHandler.GetContextJson()}
 
     public async Task ConversationAsync()
     {
+        if (_shouldExit)
+        {
+            return;
+        }
+
         var function = await GetFunctionAsync(prompt: _managementPrompt);
 
         _aiOutput = (string)MethodInvoker.Execute(function, appInstance);
@@ -53,21 +59,19 @@ History: {_contextHandler.GetContextJson()}
             Parameters = function.Parameters,
             Response = _aiOutput,
         };
-        _contextHandler.AddToContext(functionResponse);
+        ContextHandler.AddToContext(functionResponse);
         if (_debug)
         {
-            Console.WriteLine(_contextHandler.GetLastContextPartJson());
+            Console.WriteLine(ContextHandler.GetLastContextPartJson());
         }
 
         await ConversationAsync();
     }
 
-    public async Task StartAsync()
+    public async Task StartAsync(string userInput)
     {
+        _userInput = userInput;
         appInstance.OnExit = Exit;
-        Console.WriteLine("Enter your input:");
-        _userInput = Console.ReadLine();
-        Console.WriteLine();
         await ConversationAsync();
     }
 
@@ -92,6 +96,6 @@ History: {_contextHandler.GetContextJson()}
     public void Exit()
     {
         Console.WriteLine($"\nOutput:\n{_aiOutput}");
-        Environment.Exit(0);
+        _shouldExit = true;
     }
 }
