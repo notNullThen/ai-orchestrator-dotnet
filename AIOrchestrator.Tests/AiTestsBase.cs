@@ -31,4 +31,15 @@ public abstract class AiTestsBase
             }
         }
     }
+
+    protected void SetLoopDetection(int contextCountLimit) =>
+        AiManager!.ContextHandler.OnContextUpdated += (sender, context) =>
+        {
+            if (context.Count > contextCountLimit)
+            {
+                throw new InvalidOperationException(
+                    $"Seems like we went into a loop! Context is more than {contextCountLimit}. "
+                );
+            }
+        };
 }

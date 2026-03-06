@@ -13,11 +13,17 @@ public sealed class ContextHandler<T>
         PropertyNameCaseInsensitive = true,
     };
 
+    public event EventHandler<List<T>>? OnContextUpdated;
+
     private readonly List<T> _context = [];
 
     public IReadOnlyList<T> Context => _context.AsReadOnly();
 
-    public void AddToContext(T part) => _context.Add(part);
+    public void AddToContext(T part)
+    {
+        _context.Add(part);
+        OnContextUpdated?.Invoke(this, _context);
+    }
 
     public string GetContextJson() => JsonSerializer.Serialize(_context, _jsonSerializerOptions);
 

@@ -17,6 +17,8 @@ public sealed class ManagerPromptTests
         public async Task ShouldManageProperlyIfNoDetailsInInputAsync()
         {
             AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
+            SetLoopDetection(contextCountLimit: 3);
+
             var input = "will it be hot today";
             var context = AiManager.ContextHandler.Context;
 
@@ -57,6 +59,9 @@ public sealed class ManagerPromptTests
         public async Task ShouldCorrectParametersCasingAsync()
         {
             AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
+
+            SetLoopDetection(contextCountLimit: 2);
+
             var input = "will it be hot today in paris";
             var context = AiManager.ContextHandler.Context;
 
@@ -75,6 +80,8 @@ public sealed class ManagerPromptTests
         public async Task ShouldCorrectParametersTyposAsync()
         {
             AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
+            SetLoopDetection(contextCountLimit: 2);
+
             var input = "what is the weather in buddappesst";
             var context = AiManager.ContextHandler.Context;
 
@@ -94,6 +101,8 @@ public sealed class ManagerPromptTests
         public async Task ShouldCorrectParametersSmallTyposAsync()
         {
             AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
+            SetLoopDetection(contextCountLimit: 2);
+
             var input = "what is the weather in buddappesst";
             var context = AiManager.ContextHandler.Context;
 
