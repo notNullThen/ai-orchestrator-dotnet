@@ -4,17 +4,11 @@ using AIOrchestrator.Application;
 using AIOrchestrator.Core;
 using AIOrchestrator.Core.Types;
 
-[TestClass]
 public sealed class ManagerPromptTests
 {
     private const string _modelName = "qwen2.5-coder:7b";
 
     private static readonly AppSample _appSample = new();
-
-    private static readonly AiManager _aiManager = new(
-        modelName: _modelName,
-        appInstance: _appSample
-    );
 
     [TestClass]
     public class ManagementPromptTests
@@ -22,10 +16,11 @@ public sealed class ManagerPromptTests
         [TestMethod]
         public async Task ShouldManageProperlyIfNoDetailsInInputAsync()
         {
+            var aiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             var input = "will it be hot today";
-            var context = _aiManager.ContextHandler.Context;
+            var context = aiManager.ContextHandler.Context;
 
-            await _aiManager.StartAsync(input);
+            await aiManager.StartAsync(input);
 
             var locationCall = context[0];
             var weatherCall = context[1];
@@ -61,12 +56,16 @@ public sealed class ManagerPromptTests
         [TestMethod]
         public async Task ShouldCorrectParametersCasingAsync()
         {
+            var aiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             var input = "will it be hot today in paris";
-            var context = _aiManager.ContextHandler.Context;
+            var context = aiManager.ContextHandler.Context;
 
-            await _aiManager.StartAsync(input);
+            await aiManager.StartAsync(input);
 
-            var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
+            var functionCall = GetFirstFunctionCallByFunctionName(
+                functionName: nameof(AppSample.GetWeather),
+                aiManager
+            );
             var parameter = functionCall.Parameters.First();
 
             Assert.AreEqual("Paris", parameter, ignoreCase: false);
@@ -75,12 +74,16 @@ public sealed class ManagerPromptTests
         [TestMethod]
         public async Task ShouldCorrectParametersTyposAsync()
         {
+            var aiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             var input = "what is the weather in buddappesst";
-            var context = _aiManager.ContextHandler.Context;
+            var context = aiManager.ContextHandler.Context;
 
-            await _aiManager.StartAsync(input);
+            await aiManager.StartAsync(input);
 
-            var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
+            var functionCall = GetFirstFunctionCallByFunctionName(
+                functionName: nameof(AppSample.GetWeather),
+                aiManager
+            );
             var parameter = functionCall.Parameters.First();
 
             Assert.AreEqual("Budapest", parameter, ignoreCase: false);
@@ -90,18 +93,24 @@ public sealed class ManagerPromptTests
         [Ignore("Unignore after fixing the issue with small typos correction.")]
         public async Task ShouldCorrectParametersSmallTyposAsync()
         {
+            var aiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             var input = "what is the weather in buddappesst";
-            var context = _aiManager.ContextHandler.Context;
+            var context = aiManager.ContextHandler.Context;
 
-            await _aiManager.StartAsync(input);
+            await aiManager.StartAsync(input);
 
-            var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
+            var functionCall = GetFirstFunctionCallByFunctionName(
+                functionName: nameof(AppSample.GetWeather),
+                aiManager
+            );
             var parameter = functionCall.Parameters.First();
 
             Assert.AreEqual("Budapest", parameter, ignoreCase: false);
         }
     }
 
-    private static FunctionCallResponse GetFirstFunctionCallByName(string functionName) =>
-        _aiManager.ContextHandler.Context.First(param => param.Function == functionName);
+    private static FunctionCallResponse GetFirstFunctionCallByFunctionName(
+        string functionName,
+        AiManager aiManager
+    ) => aiManager.ContextHandler.Context.First(param => param.Function == functionName);
 }
