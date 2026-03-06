@@ -5,8 +5,10 @@ using AIOrchestrator.Core.Types;
 using AIOrchestrator.OllamaClient;
 using AIOrchestrator.Utilities;
 
-internal sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
+public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 {
+    public ContextHandler<FunctionCallResponse> ContextHandler => _contextHandler;
+
     private bool _debug { get; set; }
 
     private string? _userInput;
@@ -14,7 +16,7 @@ internal sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
     private bool _shouldExit;
 
     private readonly OllamaClient _ollamaClient = new();
-    public readonly ContextHandler<FunctionCallResponse> ContextHandler = new();
+    private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
 
     private string _managementPrompt =>
         @$"
@@ -25,7 +27,7 @@ Available Tools: {appInstance.GetDescription()}
 
 # CONTEXT
 User Input: ""{_userInput}""
-History: {ContextHandler.GetContextJson()}
+History: {_contextHandler.GetContextJson()}
 
 # CONSTRAINTS
 1. If History already contains the answer, call {nameof(Exit)}().
@@ -59,10 +61,10 @@ History: {ContextHandler.GetContextJson()}
             Parameters = function.Parameters,
             Response = _aiOutput,
         };
-        ContextHandler.AddToContext(functionResponse);
+        _contextHandler.AddToContext(functionResponse);
         if (_debug)
         {
-            Console.WriteLine(ContextHandler.GetLastContextPartJson());
+            Console.WriteLine(_contextHandler.GetLastContextPartJson());
         }
 
         await ConversationAsync();

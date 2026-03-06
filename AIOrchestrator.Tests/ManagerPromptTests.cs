@@ -11,16 +11,16 @@ public sealed class ManagerPromptTests
     private static readonly AppSample _appSample = new();
 
     [TestClass]
-    public class ManagementPromptTests
+    public class ManagementPromptTests : AiTestsBase
     {
         [TestMethod]
         public async Task ShouldManageProperlyIfNoDetailsInInputAsync()
         {
-            var aiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
+            AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             var input = "will it be hot today";
-            var context = aiManager.ContextHandler.Context;
+            var context = AiManager.ContextHandler.Context;
 
-            await aiManager.StartAsync(input);
+            await AiManager.StartAsync(input);
 
             var locationCall = context[0];
             var weatherCall = context[1];
@@ -51,20 +51,20 @@ public sealed class ManagerPromptTests
     }
 
     [TestClass]
-    public class GrammarTests
+    public class GrammarTests : AiTestsBase
     {
         [TestMethod]
         public async Task ShouldCorrectParametersCasingAsync()
         {
-            var aiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
+            AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             var input = "will it be hot today in paris";
-            var context = aiManager.ContextHandler.Context;
+            var context = AiManager.ContextHandler.Context;
 
-            await aiManager.StartAsync(input);
+            await AiManager.StartAsync(input);
 
             var functionCall = GetFirstFunctionCallByFunctionName(
                 functionName: nameof(AppSample.GetWeather),
-                aiManager
+                AiManager
             );
             var parameter = functionCall.Parameters.First();
 
@@ -74,15 +74,15 @@ public sealed class ManagerPromptTests
         [TestMethod]
         public async Task ShouldCorrectParametersTyposAsync()
         {
-            var aiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
+            AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             var input = "what is the weather in buddappesst";
-            var context = aiManager.ContextHandler.Context;
+            var context = AiManager.ContextHandler.Context;
 
-            await aiManager.StartAsync(input);
+            await AiManager.StartAsync(input);
 
             var functionCall = GetFirstFunctionCallByFunctionName(
                 functionName: nameof(AppSample.GetWeather),
-                aiManager
+                AiManager
             );
             var parameter = functionCall.Parameters.First();
 
@@ -93,15 +93,15 @@ public sealed class ManagerPromptTests
         [Ignore("Unignore after fixing the issue with small typos correction.")]
         public async Task ShouldCorrectParametersSmallTyposAsync()
         {
-            var aiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
+            AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             var input = "what is the weather in buddappesst";
-            var context = aiManager.ContextHandler.Context;
+            var context = AiManager.ContextHandler.Context;
 
-            await aiManager.StartAsync(input);
+            await AiManager.StartAsync(input);
 
             var functionCall = GetFirstFunctionCallByFunctionName(
                 functionName: nameof(AppSample.GetWeather),
-                aiManager
+                AiManager
             );
             var parameter = functionCall.Parameters.First();
 
