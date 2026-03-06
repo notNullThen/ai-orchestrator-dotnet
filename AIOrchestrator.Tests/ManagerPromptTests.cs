@@ -5,7 +5,7 @@ using AIOrchestrator.Core;
 using AIOrchestrator.Core.Types;
 
 [TestClass]
-public sealed class Test1
+public sealed class ManagerPromptTests
 {
     private const string _modelName = "qwen2.5-coder:7b";
 
