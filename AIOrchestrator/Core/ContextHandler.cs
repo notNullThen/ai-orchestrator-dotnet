@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 public sealed class ContextHandler<T>
 {
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
