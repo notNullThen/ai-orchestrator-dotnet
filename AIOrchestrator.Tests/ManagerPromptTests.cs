@@ -16,47 +16,90 @@ public sealed class ManagerPromptTests
         appInstance: _appSample
     );
 
-    [TestMethod]
-    public async Task ShouldCorrectParametersCasingAsync()
+    [TestClass]
+    public class ManagementPromptTests
     {
-        var input = "will it be hot today in paris";
-        var context = _aiManager.ContextHandler.Context;
+        [TestMethod]
+        public async Task ShouldManageProperlyIfNoDetailsInInputAsync()
+        {
+            var input = "will it be hot today";
+            var context = _aiManager.ContextHandler.Context;
 
-        await _aiManager.StartAsync(input);
+            await _aiManager.StartAsync(input);
 
-        var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
-        var parameter = functionCall.Parameters.First();
+            var locationCall = context[0];
+            var weatherCall = context[1];
 
-        Assert.AreEqual("Paris", parameter, ignoreCase: false);
+            Assert.AreEqual(
+                nameof(AppSample.GetLocation),
+                locationCall.Function,
+                $"Should call the {nameof(AppSample.GetLocation)}() function first."
+            );
+            Assert.IsEmpty(
+                locationCall.Parameters,
+                $"Halucinated parameters for the {nameof(AppSample.GetLocation)}() function."
+            );
+
+            Assert.AreEqual(
+                nameof(AppSample.GetWeather),
+                weatherCall.Function,
+                $"Should call the {nameof(AppSample.GetWeather)}() function."
+            );
+            Assert.AreEqual(
+                locationCall.Response,
+                weatherCall.Parameters.First(),
+                $"Should use the location from the first call as parameter for the {nameof(AppSample.GetWeather)}() function."
+            );
+
+            Assert.HasCount(3, context, "Might have called more functions than expected.");
+        }
     }
 
-    [TestMethod]
-    public async Task ShouldCorrectParametersTyposAsync()
+    [TestClass]
+    public class GrammarTests
     {
-        var input = "what is the weather in buddappesst";
-        var context = _aiManager.ContextHandler.Context;
+        [TestMethod]
+        public async Task ShouldCorrectParametersCasingAsync()
+        {
+            var input = "will it be hot today in paris";
+            var context = _aiManager.ContextHandler.Context;
 
-        await _aiManager.StartAsync(input);
+            await _aiManager.StartAsync(input);
 
-        var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
-        var parameter = functionCall.Parameters.First();
+            var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
+            var parameter = functionCall.Parameters.First();
 
-        Assert.AreEqual("Budapest", parameter, ignoreCase: false);
-    }
+            Assert.AreEqual("Paris", parameter, ignoreCase: false);
+        }
 
-    [TestMethod]
-    [Ignore("Unignore after fixing the issue with small typos correction.")]
-    public async Task ShouldCorrectParametersSmallTyposAsync()
-    {
-        var input = "what is the weather in buddappesst";
-        var context = _aiManager.ContextHandler.Context;
+        [TestMethod]
+        public async Task ShouldCorrectParametersTyposAsync()
+        {
+            var input = "what is the weather in buddappesst";
+            var context = _aiManager.ContextHandler.Context;
 
-        await _aiManager.StartAsync(input);
+            await _aiManager.StartAsync(input);
 
-        var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
-        var parameter = functionCall.Parameters.First();
+            var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
+            var parameter = functionCall.Parameters.First();
 
-        Assert.AreEqual("Budapest", parameter, ignoreCase: false);
+            Assert.AreEqual("Budapest", parameter, ignoreCase: false);
+        }
+
+        [TestMethod]
+        [Ignore("Unignore after fixing the issue with small typos correction.")]
+        public async Task ShouldCorrectParametersSmallTyposAsync()
+        {
+            var input = "what is the weather in buddappesst";
+            var context = _aiManager.ContextHandler.Context;
+
+            await _aiManager.StartAsync(input);
+
+            var functionCall = GetFirstFunctionCallByName(nameof(AppSample.GetWeather));
+            var parameter = functionCall.Parameters.First();
+
+            Assert.AreEqual("Budapest", parameter, ignoreCase: false);
+        }
     }
 
     private static FunctionCallResponse GetFirstFunctionCallByName(string functionName) =>
