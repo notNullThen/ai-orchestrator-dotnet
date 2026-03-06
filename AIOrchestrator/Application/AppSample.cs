@@ -7,9 +7,9 @@ using AIOrchestrator.Core.AiAppFacade.Types;
 
 internal sealed class AppSample : AiAppFacadeBase
 {
-    private string GetWeather(string location) => $"It's sunny and warm in {location}";
+    public string GetWeather(string location) => $"It's sunny and warm in {location}";
 
-    private string GetLocation() => "Dubai";
+    public string GetLocation() => "Dubai";
 
     public override AppDescription GetDescription() =>
         [
