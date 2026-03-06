@@ -25,7 +25,7 @@ public abstract class AiTestsBase
             {
                 var json = JsonSerializer.Serialize(AiManager.ContextHandler.Context, _jsonOptions);
 
-                TestContext.WriteLine("--- TEST FAILED: FUNCTIONS CALL SNAPSHOT ---");
+                TestContext.WriteLine("--- TEST FAILED: FUNCTION CALLS AI CONTEXT ---");
                 TestContext.WriteLine(json);
                 TestContext.WriteLine("---------------------------------------");
             }
