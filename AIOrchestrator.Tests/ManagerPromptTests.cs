@@ -8,15 +8,15 @@ public sealed class ManagerPromptTests
 {
     private const string _modelName = "qwen2.5-coder:7b";
 
-    private static readonly AppSample _appSample = new();
-
     [TestClass]
     public class ManagementPromptTests : AiTestsBase
     {
+        protected override string ModelName => _modelName;
+        protected override AppSample AppInstance => new();
+
         [TestMethod]
         public async Task ShouldManageProperlyIfNoDetailsInInputAsync()
         {
-            AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             SetLoopDetection(contextCountLimit: 3);
 
             var input = "will it be hot today";
@@ -55,11 +55,12 @@ public sealed class ManagerPromptTests
     [TestClass]
     public class GrammarTests : AiTestsBase
     {
+        protected override string ModelName => _modelName;
+        protected override AppSample AppInstance => new();
+
         [TestMethod]
         public async Task ShouldCorrectParametersCasingAsync()
         {
-            AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
-
             SetLoopDetection(contextCountLimit: 2);
 
             var input = "will it be hot today in paris";
@@ -79,7 +80,6 @@ public sealed class ManagerPromptTests
         [TestMethod]
         public async Task ShouldCorrectParametersTyposAsync()
         {
-            AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             SetLoopDetection(contextCountLimit: 2);
 
             var input = "what is the weather in buddappesst";
@@ -100,7 +100,6 @@ public sealed class ManagerPromptTests
         [Ignore("Unignore after fixing the issue with small typos correction.")]
         public async Task ShouldCorrectParametersSmallTyposAsync()
         {
-            AiManager = new AiManager(modelName: _modelName, appInstance: _appSample);
             SetLoopDetection(contextCountLimit: 2);
 
             var input = "what is the weather in buddappesst";

@@ -5,7 +5,7 @@ namespace AIOrchestrator.Application;
 using AIOrchestrator.Core.AiAppFacade;
 using AIOrchestrator.Core.AiAppFacade.Types;
 
-internal sealed class AppSample : AiAppFacadeBase
+public sealed class AppSample : AiAppFacadeBase
 {
     public string GetWeather(string location) => $"It's sunny and warm in {location}";
 

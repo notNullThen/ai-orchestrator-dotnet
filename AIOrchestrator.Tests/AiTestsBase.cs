@@ -3,18 +3,29 @@ namespace AIOrchestratorTests;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using AIOrchestrator.Core;
+using AIOrchestrator.Core.AiAppFacade;
 
 public abstract class AiTestsBase
 {
     public required TestContext TestContext { get; set; }
 
-    protected AiManager? AiManager { get; set; }
+    public required AiManager AiManager { get; set; }
+    protected abstract string ModelName { get; }
+    protected abstract AiAppFacadeBase AppInstance { get; }
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = true,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
+
+    [TestInitialize]
+    public void Setup()
+    {
+        AiManager = new AiManager(modelName: ModelName, appInstance: AppInstance);
+
+        SetLoopDetection(contextCountLimit: 10);
+    }
 
     [TestCleanup]
     public void LogContextOnFailure()
