@@ -1,4 +1,4 @@
-namespace AIOrchestrator.Infrastructure.OllamaClient.Types;
+namespace AIOrchestrator.OllamaClient.Types;
 
 using System.Text.Json.Serialization;
 

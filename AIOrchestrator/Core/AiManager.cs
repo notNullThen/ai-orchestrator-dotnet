@@ -1,9 +1,11 @@
 ﻿namespace AIOrchestrator.Core;
 
+using AIOrchestrator.Core.AiAppFacade;
+using AIOrchestrator.Core.Types;
 using AIOrchestrator.OllamaClient;
 using AIOrchestrator.Utilities;
 
-internal sealed class AiManager(string modelName, AiFacadeBase appInstance)
+internal sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 {
     private bool _debug { get; set; }
 

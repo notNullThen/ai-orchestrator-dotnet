@@ -1,9 +1,8 @@
-namespace AIOrchestrator.Core;
+namespace AIOrchestrator.Core.AiAppFacade;
 
-using System;
-using AIOrchestrator.Core.AiFacade;
+using AIOrchestrator.Core.AiAppFacade.Types;
 
-public abstract class AiFacadeBase()
+public abstract class AiAppFacadeBase()
 {
     public Action? OnExit { get; set; }
 

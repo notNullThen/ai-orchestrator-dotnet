@@ -1,9 +1,8 @@
 namespace AIOrchestrator.Utilities;
 
-using System;
 using System.Reflection;
 using System.Text.Json;
-using AIOrchestrator.Core;
+using AIOrchestrator.Core.Types;
 
 internal static class MethodInvoker
 {

@@ -1,4 +1,4 @@
-namespace AIOrchestrator.Core.AiFacade;
+namespace AIOrchestrator.Core.AiAppFacade.Types;
 
 using System.Text.Json;
 
