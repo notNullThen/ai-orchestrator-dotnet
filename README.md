@@ -10,7 +10,7 @@ Simple tests are implemetned to test the final result and AI management of promp
 
 This solution uses [Ollama](https://ollama.com/) to run fully local large language models (LLMs).
 
-It works well with fast & light `qwen2.5-coder:7b` model.
+It works well with fast & light `qwen2.5-coder:7b` model, though it is very easy to try the solution with any other model available to pull from Ollama.
 
 This project takes the function-calling decision on an LLM AI model: 
 - Given a user input, it selects and runs the appropriate functions.
