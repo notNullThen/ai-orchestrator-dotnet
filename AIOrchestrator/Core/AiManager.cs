@@ -3,7 +3,7 @@
 using AIOrchestrator.OllamaClient;
 using AIOrchestrator.Utilities;
 
-public class AiManager(string modelName, AiFacadeBase appInstance)
+internal sealed class AiManager(string modelName, AiFacadeBase appInstance)
 {
     private bool _debug { get; set; }
 
@@ -33,7 +33,7 @@ History: {_contextHandler.GetContextJson()}
 # RESPONSE FORMAT
 {{
   ""Function"": ""string"",
-  ""Parameters"": []
+  ""Parameters"": ""string[]""
 }}
 ";
 
@@ -71,8 +71,9 @@ History: {_contextHandler.GetContextJson()}
 
     private async Task<FunctionCall> GetFunctionAsync(string prompt)
     {
-        var response = await _ollamaClient.RequestAsync(prompt: prompt, model: modelName);
-        var functionJson = MarkdownProcess.RemoveCodeMarkdown(response.Response);
+        var ollamaResponse = await _ollamaClient.RequestAsync(prompt: prompt, model: modelName);
+        var response = ollamaResponse.Response;
+        var functionJson = MarkdownProcess.RemoveCodeMarkdown(response);
         try
         {
             return MethodInvoker.Deserialize(functionJson);
@@ -80,7 +81,7 @@ History: {_contextHandler.GetContextJson()}
         catch (Exception exception)
         {
             throw new Exception(
-                $"Failed to deserialize function call. Response was: {response.Response}",
+                $"Failed to deserialize function call. Response was: {response}",
                 exception
             );
         }

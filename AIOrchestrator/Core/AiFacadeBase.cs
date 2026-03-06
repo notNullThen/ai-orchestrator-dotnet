@@ -1,6 +1,7 @@
 namespace AIOrchestrator.Core;
 
 using System;
+using AIOrchestrator.Core.AiFacade;
 
 public abstract class AiFacadeBase()
 {
@@ -18,5 +19,5 @@ public abstract class AiFacadeBase()
         OnExit.Invoke();
     }
 
-    public abstract string GetDescription();
+    public abstract AppDescription GetDescription();
 }
