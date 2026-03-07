@@ -2,10 +2,6 @@
 
 # AIOrchestratorDotNET
 
-## Simple prompt testing
-
-Simple tests are implemetned to test the final result and AI management of prompt and picked model.
-
 ## Local LLM Support
 
 This solution uses [Ollama](https://ollama.com/) to run fully local large language models (LLMs).
@@ -19,6 +15,10 @@ This project takes the function-calling decision on an LLM AI model:
 - Considers the context automatically.
 
 This enables seamless, intuitive, human-decision-based orchestration of logic in .NET applications.
+
+## Simple prompt testing
+
+Simple tests are implemetned to test the final result and AI management of prompt and picked model.
 
 ## Quick Start
 
