@@ -1,9 +1,9 @@
 ﻿namespace AIOrchestrator.Core;
 
-using AIOrchestrator.Core.AiAppFacade;
-using AIOrchestrator.Core.Types;
-using AIOrchestrator.OllamaClient;
-using AIOrchestrator.Utilities;
+using AiAppFacade;
+using Types;
+using OllamaClient;
+using Utilities;
 
 public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 {

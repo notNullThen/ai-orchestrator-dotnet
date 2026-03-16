@@ -1,8 +1,8 @@
 #pragma warning disable IDE0040 // Add accessibility modifiers
 namespace AIOrchestrator;
 
-using AIOrchestrator.Application;
-using AIOrchestrator.Core;
+using Application;
+using Core;
 
 sealed class Program
 {

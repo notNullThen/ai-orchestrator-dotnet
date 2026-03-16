@@ -3,7 +3,7 @@ namespace AIOrchestrator.OllamaClient;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AIOrchestrator.OllamaClient.Types;
+using Types;
 
 internal sealed class OllamaClient
 {

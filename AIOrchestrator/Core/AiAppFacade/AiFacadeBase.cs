@@ -1,6 +1,6 @@
 namespace AIOrchestrator.Core.AiAppFacade;
 
-using AIOrchestrator.Core.AiAppFacade.Types;
+using Types;
 
 public abstract class AiAppFacadeBase()
 {

@@ -64,7 +64,6 @@ public sealed class ManagerPromptTests
             SetLoopDetection(contextCountLimit: 2);
 
             var input = "will it be hot today in paris";
-            var context = AiManager.ContextHandler.Context;
 
             await AiManager.StartAsync(input);
 
@@ -83,7 +82,6 @@ public sealed class ManagerPromptTests
             SetLoopDetection(contextCountLimit: 2);
 
             var input = "what is the weather in buddappesst";
-            var context = AiManager.ContextHandler.Context;
 
             await AiManager.StartAsync(input);
 
@@ -103,7 +101,6 @@ public sealed class ManagerPromptTests
             SetLoopDetection(contextCountLimit: 2);
 
             var input = "what is the weather in buddappesst";
-            var context = AiManager.ContextHandler.Context;
 
             await AiManager.StartAsync(input);
 

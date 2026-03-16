@@ -2,8 +2,8 @@
 
 namespace AIOrchestrator.Application;
 
-using AIOrchestrator.Core.AiAppFacade;
-using AIOrchestrator.Core.AiAppFacade.Types;
+using Core.AiAppFacade;
+using Core.AiAppFacade.Types;
 
 public sealed class AppSample : AiAppFacadeBase
 {
