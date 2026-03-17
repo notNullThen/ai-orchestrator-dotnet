@@ -9,7 +9,7 @@ public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 {
     public ContextHandler<FunctionCallResponse> ContextHandler => _contextHandler;
 
-    private bool _debug { get; set; }
+    private bool Debug { get; set; }
 
     private string? _userInput;
     private string? _aiOutput;
@@ -18,7 +18,7 @@ public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
     private readonly OllamaClient _ollamaClient = new();
     private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
 
-    private string _managementPrompt =>
+    private string ManagementPrompt =>
         @$"
 # SYSTEM
 You are a function-calling engine.
@@ -39,7 +39,7 @@ History: {_contextHandler.GetContextJson()}
 }}
 ";
 
-    public void SetDebug(bool debug) => _debug = debug;
+    public void SetDebug(bool debug) => Debug = debug;
 
     public async Task ConversationAsync()
     {
@@ -48,7 +48,7 @@ History: {_contextHandler.GetContextJson()}
             return;
         }
 
-        var function = await GetFunctionAsync(prompt: _managementPrompt);
+        var function = await GetFunctionAsync(prompt: ManagementPrompt);
 
         _aiOutput = (string)MethodInvoker.Execute(function, appInstance);
 
@@ -57,7 +57,7 @@ History: {_contextHandler.GetContextJson()}
             Function = function.Function, Parameters = function.Parameters, Response = _aiOutput,
         };
         _contextHandler.AddToContext(functionResponse);
-        if (_debug)
+        if (Debug)
         {
             Console.WriteLine(_contextHandler.GetLastContextPartJson());
         }

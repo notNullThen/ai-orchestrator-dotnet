@@ -6,12 +6,12 @@ using Core;
 
 sealed class Program
 {
-    private const string _modelName = "qwen2.5-coder:7b";
+    private const string ModelName = "qwen2.5-coder:7b";
 
     private static readonly AppSample _appSample = new();
 
     private static readonly AiManager _aiManager = new(
-        modelName: _modelName,
+        modelName: ModelName,
         appInstance: _appSample
     );
 
