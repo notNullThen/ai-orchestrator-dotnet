@@ -1,8 +1,8 @@
 ﻿namespace AIOrchestrator.Core;
 
 using AiAppFacade;
-using Types;
 using OllamaClient;
+using Types;
 using Utilities;
 
 public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
@@ -30,10 +30,7 @@ User Input: ""{_userInput}""
 History: {_contextHandler.GetContextJson()}
 
 # CONSTRAINTS
-1. If History already contains the answer, call {nameof(Exit)}().
-2. Never repeat a function call found in History.
-3. Correct grammar/casing in parameters.
-4. Return ONLY raw JSON. No markdown, no backticks.
+{appInstance.GetConstraints()}
 
 # RESPONSE FORMAT
 {{
@@ -57,9 +54,7 @@ History: {_contextHandler.GetContextJson()}
 
         var functionResponse = new FunctionCallResponse
         {
-            Function = function.Function,
-            Parameters = function.Parameters,
-            Response = _aiOutput,
+            Function = function.Function, Parameters = function.Parameters, Response = _aiOutput,
         };
         _contextHandler.AddToContext(functionResponse);
         if (_debug)

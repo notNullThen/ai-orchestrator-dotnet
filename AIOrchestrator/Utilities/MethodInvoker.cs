@@ -3,7 +3,7 @@ namespace AIOrchestrator.Utilities;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
-using AIOrchestrator.Core.Types;
+using Core.Types;
 
 internal static class MethodInvoker
 {
@@ -20,9 +20,9 @@ internal static class MethodInvoker
                 .GetMethod(
                     instruction.Function,
                     BindingFlags.Instance
-                        | BindingFlags.Static
-                        | BindingFlags.Public
-                        | BindingFlags.NonPublic
+                    | BindingFlags.Static
+                    | BindingFlags.Public
+                    | BindingFlags.NonPublic
                 )
             ?? throw new MissingMethodException(
                 $"Method {instruction.Function}() not found in {targetInstance.GetType().Name} class."

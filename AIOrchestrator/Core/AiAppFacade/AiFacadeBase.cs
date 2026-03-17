@@ -2,7 +2,7 @@ namespace AIOrchestrator.Core.AiAppFacade;
 
 using Types;
 
-public abstract class AiAppFacadeBase()
+public abstract class AiAppFacadeBase
 {
     public Action? OnExit { get; set; }
 
@@ -19,4 +19,6 @@ public abstract class AiAppFacadeBase()
     }
 
     public abstract AppDescription GetDescription();
+
+    public abstract string GetConstraints();
 }
