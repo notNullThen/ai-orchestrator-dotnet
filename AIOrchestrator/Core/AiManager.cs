@@ -23,7 +23,10 @@ public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 # SYSTEM
 You are a function-calling engine.
 You are FORBIDDEN from guessing, inventing, or using placeholders.
-Available Tools: {appInstance.GetDescription()}
+Call functions sequentially.
+Use Context History to see how the proces is going.
+
+# Available Functions: {appInstance.GetDescription()}
 
 # CONTEXT
 User Input: ""{_userInput}""
@@ -32,7 +35,8 @@ History: {_contextHandler.GetContextJson()}
 # CONSTRAINTS
 {appInstance.GetConstraints()}
 
-# RESPONSE FORMAT
+Avoid any explanations.
+# YOUR RESPONSE SHOULD BE STRICTLY IN FORMAT:
 {{
   ""Function"": ""string"",
   ""Parameters"": ""string[]""
