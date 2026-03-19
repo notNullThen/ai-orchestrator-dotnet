@@ -6,7 +6,7 @@ public abstract class AiAppFacadeBase
 {
     public Action? OnExit { get; set; }
 
-    protected void Exit()
+    public void Exit()
     {
         if (OnExit == null)
         {
