@@ -1,10 +1,10 @@
-# AIOrchestratorDotNET
+# AIOrchestratorDotNET NuGet package
+
+### It is used as a NuGet package in [Time Calculator AI Powered](https://github.com/notNullThen/time-calculator-blazor) project
 
 ## Local LLM Support
 
 This solution uses [Ollama](https://ollama.com/) to run fully local large language models (LLMs).
-
-It works well with fast & light `qwen2.5-coder:7b` model, though it is very easy to try the solution with any other model available to pull from Ollama.
 
 This project takes the function-calling decision on an LLM AI model:
 
