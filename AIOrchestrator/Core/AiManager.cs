@@ -23,8 +23,8 @@ public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 # SYSTEM
 You are a function-calling engine.
 You are FORBIDDEN from guessing, inventing, or using placeholders.
-Call functions sequentially.
-Use Context History to see how the proces is going.
+You are FORBIDDEN from responding with more than 1 function call.
+Track the process in the Context History.
 
 # Available Functions: {appInstance.GetDescription()}
 
