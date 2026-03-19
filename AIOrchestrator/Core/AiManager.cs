@@ -12,7 +12,7 @@ public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
     private bool Debug { get; set; }
 
     private string? _userInput;
-    private string? _aiOutput;
+    private object? _aiOutput;
     private bool _shouldExit;
 
     private readonly OllamaClient _ollamaClient = new();
@@ -54,11 +54,13 @@ Avoid any explanations.
 
         var function = await GetFunctionAsync(prompt: ManagementPrompt);
 
-        _aiOutput = (string)MethodInvoker.Execute(function, appInstance);
+        _aiOutput = MethodInvoker.Execute(function, appInstance);
 
         var functionResponse = new FunctionCallResponse
         {
-            Function = function.Function, Parameters = function.Parameters, Response = _aiOutput,
+            Function = function.Function,
+            Parameters = function.Parameters,
+            Response = _aiOutput,
         };
         _contextHandler.AddToContext(functionResponse);
         if (Debug)
