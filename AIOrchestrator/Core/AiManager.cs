@@ -23,7 +23,7 @@ public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 # SYSTEM
 You are a function-calling engine.
 You are FORBIDDEN from guessing, inventing, or using placeholders.
-You are FORBIDDEN from responding with more than 1 function call.
+ATOMIC STEPPING: Call only ONE function per turn. After each call, wait for the engine to provide the updated state in the history.
 Track the process in the Context History.
 As soon as user request is fulfilled, call {nameof(appInstance.Exit)} function.
 
@@ -43,6 +43,8 @@ Avoid any explanations.
   ""Parameters"": ""string[]""
 }}
 ";
+
+    public string GetManagementPrompt() => ManagementPrompt;
 
     public void SetDebug(bool debug) => Debug = debug;
 
