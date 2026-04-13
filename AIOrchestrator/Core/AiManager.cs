@@ -20,28 +20,58 @@ public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
 
     private string ManagementPrompt =>
         @$"
-# SYSTEM
-You are a function-calling engine.
-You are FORBIDDEN from guessing, inventing, or using placeholders.
-ATOMIC STEPPING: Call only ONE function per turn. After each call, wait for the engine to provide the updated state in the history.
-Track the process in the Context History.
-As soon as user request is fulfilled, call {nameof(appInstance.Exit)} function.
+SYSTEM:
+You are a function calling engine.
 
-# Available Functions: {appInstance.GetDescription()}
+YOU MUST FOLLOW ALL RULES STRICTLY.
 
-# CONTEXT
-User Input: ""{_userInput}""
-History: {_contextHandler.GetContextJson()}
+OUTPUT RULES:
+- Return ONLY valid JSON.
+- DO NOT write any text.
+- DO NOT explain.
+- DO NOT use markdown or backticks.
+- Call EXACTLY ONE function.
 
-# CONSTRAINTS
-{appInstance.GetConstraints()}
+STRICT JSON STRUCTURE:
+- The response MUST be a SINGLE valid JSON object.
 
-Avoid any explanations.
-# YOUR RESPONSE SHOULD BE STRICTLY IN FORMAT:
+FORMAT:
 {{
   ""Function"": ""string"",
-  ""Parameters"": ""string[]""
+  ""Parameters"": [""string""]
 }}
+
+FUNCTION CALL RULES:
+- You MUST call EXACTLY ONE function.
+- NEVER respond with more than ONE function.
+- NEVER return multiple JSON objects.
+- NEVER simulate multiple steps.
+
+PARAMETERS RULES:
+- Parameters MUST contain ONLY raw values.
+- Each parameter MUST be a string value.
+- NEVER include parameter names.
+
+BEHAVIOR:
+- You operate step-by-step.
+- Each response = ONE step = ONE function call.
+- After each call, you will be called with updated History.
+- NEVER try to complete the full task in one response.
+
+FUNCTIONS:
+{appInstance.GetDescription()}
+
+STATE:
+User: {_userInput}
+History: {_contextHandler.GetContextJson()}
+
+CONSTRAINTS:
+{appInstance.GetConstraints()}
+
+IMPORTANT:
+- ONLY use functions from the FUNCTIONS list.
+- If data already exists in History -> DO NOT call function again.
+- If task is complete -> you MUST call {nameof(appInstance.Exit)}.
 ";
 
     public string GetManagementPrompt() => ManagementPrompt;
