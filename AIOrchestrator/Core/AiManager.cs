@@ -72,6 +72,7 @@ IMPORTANT:
 - ONLY use functions from the FUNCTIONS list.
 - If data already exists in History -> DO NOT call function again.
 - If task is complete -> you MUST call {nameof(appInstance.Exit)}.
+- Call {nameof(appInstance.Exit)} ONLY ONCE AS THE VERY LAST FUNCTION.
 ";
 
     public string GetManagementPrompt() => ManagementPrompt;
