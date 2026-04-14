@@ -1,5 +1,7 @@
 # AIOrchestratorDotNET NuGet package
 
+[![NuGet](https://img.shields.io/badge/Package-AIOrchestratorDotNET-blue)](https://github.com/notNullThen/AIOrchestratorDotNET)
+
 ### It is used as a NuGet package in [Time Calculator AI Powered](https://github.com/notNullThen/time-calculator-blazor) project
 
 ## Local LLM Support
