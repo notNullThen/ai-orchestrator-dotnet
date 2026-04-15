@@ -1,11 +1,16 @@
-﻿namespace AIOrchestrator.Core;
+namespace AIOrchestrator.Core;
 
 using AiAppFacade;
 using OllamaClient;
+using OllamaClient.Types;
 using Types;
 using Utilities;
 
-public sealed class AiManager(string modelName, AiAppFacadeBase appInstance)
+public sealed class AiManager(
+    string modelName,
+    AiAppFacadeBase appInstance,
+    ApiRequestOptions? options = null
+)
 {
     public ContextHandler<FunctionCallResponse> ContextHandler => _contextHandler;
 
@@ -86,47 +91,77 @@ IMPORTANT:
             return;
         }
 
-        var function = await GetFunctionAsync(prompt: ManagementPrompt);
-
-        _aiOutput = MethodInvoker.Execute(function, appInstance);
-
-        var functionResponse = new FunctionCallResponse
+        try
         {
-            Function = function.Function,
-            Parameters = function.Parameters,
-            Response = _aiOutput,
-        };
-        _contextHandler.AddToContext(functionResponse);
-        if (Debug)
-        {
-            Console.WriteLine(_contextHandler.GetLastContextPartJson());
+            var function = await GetFunctionAsync(prompt: ManagementPrompt);
+
+            _aiOutput = MethodInvoker.Execute(function, appInstance);
+
+            var functionResponse = new FunctionCallResponse
+            {
+                Function = function.Function,
+                Parameters = function.Parameters,
+                Response = _aiOutput,
+            };
+            _contextHandler.AddToContext(functionResponse);
+            if (Debug)
+            {
+                Console.WriteLine(_contextHandler.GetLastContextPartJson());
+            }
+
+            await ConversationAsync();
         }
-
-        await ConversationAsync();
+        catch (Exception exception)
+        {
+            Console.WriteLine($"[AiManager] Error during conversation: {exception.Message}");
+            _shouldExit = true;
+            throw; // Re-throw to inform the caller, but now we've set _shouldExit
+        }
     }
 
     public async Task StartAsync(string userInput)
     {
         _userInput = userInput;
+        _shouldExit = false;
         appInstance.OnExit = Exit;
         await ConversationAsync();
     }
 
     private async Task<FunctionCall> GetFunctionAsync(string prompt)
     {
-        var ollamaResponse = await _ollamaClient.RequestAsync(prompt: prompt, model: modelName);
-        var response = ollamaResponse.Response;
-        var functionJson = MarkdownProcess.RemoveCodeMarkdown(response);
+        var apiOptions =
+            options == null
+                ? null
+                : new ApiRequestOptions
+                {
+                    Temperature = options.Temperature,
+                    NumPredict = options.NumPredict,
+                };
+
         try
         {
+            var ollamaResponse = await _ollamaClient.RequestAsync(
+                prompt: prompt,
+                model: modelName,
+                options: apiOptions
+            );
+
+            var response = ollamaResponse.Response;
+            var functionJson = MarkdownProcess.RemoveCodeMarkdown(response);
+
             return MethodInvoker.Deserialize(functionJson);
         }
         catch (Exception exception)
         {
-            throw new Exception(
-                $"Failed to deserialize function call. Response was: {response}",
-                exception
-            );
+            Console.WriteLine("[AiManager] ERROR decoding AI response:");
+            Console.WriteLine($"Exception: {exception.Message}");
+
+            if (exception.InnerException != null)
+            {
+                Console.WriteLine($"Inner Exception: {exception.InnerException.Message}");
+            }
+
+            throw;
         }
     }
 

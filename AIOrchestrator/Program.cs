@@ -1,6 +1,7 @@
 #pragma warning disable IDE0040 // Add accessibility modifiers
 namespace AIOrchestrator;
 
+using AIOrchestrator.OllamaClient.Types;
 using Application;
 using Core;
 
@@ -10,9 +11,16 @@ sealed class Program
 
     private static readonly AppSample _appSample = new();
 
+    private static readonly ApiRequestOptions _aiOptions = new()
+    {
+        Temperature = 0.7f,
+        NumPredict = 100,
+    };
+
     private static readonly AiManager _aiManager = new(
         modelName: ModelName,
-        appInstance: _appSample
+        appInstance: _appSample,
+        options: _aiOptions
     );
 
     static async Task Main(string[] args)

@@ -11,7 +11,12 @@ internal sealed class OllamaClient
 
     private readonly HttpClient _httpClient = new();
 
-    public async Task<ApiResponse> RequestAsync(string prompt, string model, Role role = Role.User)
+    public async Task<ApiResponse> RequestAsync(
+        string prompt,
+        string model,
+        Role role = Role.User,
+        ApiRequestOptions? options = null
+    )
     {
         var requestMessage = GetRequestMessage(
             url: $"{BaseUrl}/api/generate",
@@ -21,6 +26,7 @@ internal sealed class OllamaClient
                 Prompt = prompt,
                 Role = role.ToString(),
                 Stream = false,
+                Options = options,
             }
         );
 
@@ -42,7 +48,26 @@ internal sealed class OllamaClient
             requestMessage,
             HttpCompletionOption.ResponseHeadersRead
         );
+
+        response.EnsureSuccessStatusCode();
+
         var responseJson = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<ApiResponse>(responseJson)!;
+
+        if (string.IsNullOrWhiteSpace(responseJson))
+        {
+            throw new Exception("Ollama API returned an empty response.");
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<ApiResponse>(responseJson)!;
+        }
+        catch (JsonException ex)
+        {
+            throw new Exception(
+                $"Failed to deserialize Ollama API response. Content: {responseJson}",
+                ex
+            );
+        }
     }
 }

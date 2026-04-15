@@ -35,6 +35,14 @@ internal static class MethodInvoker
 
     public static FunctionCall Deserialize(string jsonInstruction)
     {
+        if (string.IsNullOrWhiteSpace(jsonInstruction))
+        {
+            throw new ArgumentException(
+                "AI response resulted in an empty JSON instruction.",
+                nameof(jsonInstruction)
+            );
+        }
+
         try
         {
             return JsonSerializer.Deserialize<FunctionCall>(

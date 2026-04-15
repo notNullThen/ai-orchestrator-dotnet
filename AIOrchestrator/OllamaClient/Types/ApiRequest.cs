@@ -15,4 +15,7 @@ internal sealed class ApiRequest
 
     [JsonPropertyName("stream")]
     public bool Stream { get; set; }
+
+    [JsonPropertyName("options")]
+    public ApiRequestOptions? Options { get; set; }
 }
