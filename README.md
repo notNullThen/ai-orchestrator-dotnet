@@ -1,6 +1,6 @@
 # AIOrchestratorDotNET NuGet package
 
-[![NuGet](https://img.shields.io/badge/Package-AIOrchestratorDotNET-blue)](https://github.com/notNullThen/AIOrchestratorDotNET)
+[![NuGet](https://img.shields.io/badge/Package-AIOrchestratorDotNET-blue)](https://github.com/notNullThen/ai-orchestrator-dotnet)
 
 ### It is used as a NuGet package in [Time Calculator AI Powered](https://github.com/notNullThen/time-calculator-blazor) project
 
@@ -27,7 +27,7 @@ Simple tests are implemetned to test the final result and AI management of promp
 2. **Clone and enter the repo:**
 
    ```bash
-   git clone https://github.com/notNullThen/AIOrchestratorDotNET.git
+   git clone https://github.com/notNullThen/ai-orchestrator-dotnet.git
    cd AIOrchestratorDotNET
    ```
 
