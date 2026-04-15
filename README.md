@@ -1,8 +1,18 @@
-# AIOrchestratorDotNET NuGet package
+# AIOrchestrator
 
-[![NuGet](https://img.shields.io/badge/Package-AIOrchestratorDotNET-blue)](https://github.com/notNullThen/ai-orchestrator-dotnet)
+[![NuGet](https://img.shields.io/nuget/v/AIOrchestrator)](https://www.nuget.org/packages/AIOrchestrator)
 
-### It is used as a NuGet package in [Time Calculator AI Powered](https://github.com/notNullThen/time-calculator-blazor) project
+A powerful .NET library that uses local LLMs for intelligent function orchestration and routing.
+
+### Installation
+
+Install the NuGet package:
+
+```bash
+dotnet add package AIOrchestrator
+```
+
+### Used in [Time Calculator AI Powered](https://github.com/notNullThen/time-calculator-blazor) project
 
 ## Local LLM Support
 
@@ -20,22 +30,6 @@ This enables seamless, intuitive, human-decision-based orchestration of logic in
 ## Simple prompt testing
 
 Simple tests are implemetned to test the final result and AI management of prompt and picked model.
-
-## Quick Start
-
-1. **Install [.NET 10.0 SDK](https://dotnet.microsoft.com/download)**
-2. **Clone and enter the repo:**
-
-   ```bash
-   git clone https://github.com/notNullThen/ai-orchestrator-dotnet.git
-   cd AIOrchestratorDotNET
-   ```
-
-3. **Run the app (with debug details):**
-
-   ```bash
-   dotnet run  --project AIOrchestrator/AIOrchestrator.csproj --debug
-   ```
 
 ## Project Overview
 
