@@ -17,4 +17,8 @@
   <ItemGroup>
     <InternalsVisibleTo Include="AIOrchestratorTests" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>
