@@ -12,7 +12,7 @@ Install the NuGet package:
 dotnet add package AIOrchestrator
 ```
 
-### Used in [Time Calculator AI Powered](https://github.com/notNullThen/time-calculator-blazor) project
+### Demo: [AI Time Manager](https://github.com/notNullThen/ai-ollama-time-manager)
 
 ## Local LLM Support
 
