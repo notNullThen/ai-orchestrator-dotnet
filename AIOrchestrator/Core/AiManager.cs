@@ -34,6 +34,10 @@ YOU MUST strictly adhere to the following JSON format.
   ""Parameters"": [""value"", ""another-value"", ...]
 }}
 
+JSON format types:
+- ""Function"": string
+- ""Parameters"": string[]
+
 RULES:
 1. You MUST return ONLY a single JSON object.
 2. You MUST NOT wrap the JSON in Markdown formatting, backticks, or write any text explanations.
