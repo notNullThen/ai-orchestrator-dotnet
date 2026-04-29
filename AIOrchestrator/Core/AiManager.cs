@@ -31,7 +31,7 @@ You are a strict JSON function calling engine. You must output EXACTLY ONE JSON 
 YOU MUST strictly adhere to the following JSON format.
 {{
   ""Function"": ""FunctionName"",
-  ""Parameters"": [""value1"", ""value2""]
+  ""Parameters"": [""value"", ""another-value"", ...]
 }}
 
 RULES:
