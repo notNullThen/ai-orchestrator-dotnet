@@ -53,7 +53,7 @@ internal static class MethodInvoker
         catch (Exception exception)
         {
             throw new Exception(
-                $"Failed to deserialize function call. Response was: {jsonInstruction}",
+                $"Failed to deserialize function call. Response was:\n{jsonInstruction}",
                 exception
             );
         }
