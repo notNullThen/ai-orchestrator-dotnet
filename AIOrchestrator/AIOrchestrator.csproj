@@ -12,6 +12,7 @@
     <Authors>YourName</Authors>
     <Description>An AI Orchestrator project.</Description>
     <PackageTags>ai;orchestrator</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
