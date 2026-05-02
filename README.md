@@ -13,6 +13,38 @@ Install the NuGet package:
 dotnet add package AIOrchestrator
 ```
 
+### Quick Usage
+
+```csharp
+using AIOrchestrator.Core;
+using AIOrchestrator.Core.AiAppFacade;
+using AIOrchestrator.Core.AiAppFacade.Types;
+using AIOrchestrator.OllamaClient.Types;
+
+// 1. Define your app capabilities by inheriting from AiAppFacadeBase
+public class MyAiApp : AiAppFacadeBase
+{
+    public string GetSystemStatus() => "All systems nominal.";
+
+    public override string GetConstraints() => "Do your functionality...";
+
+    public override AppDescription GetDescription() => [
+        new() { Name = nameof(GetSystemStatus), Description = "Returns current system status" },
+        new() { Name = nameof(Exit), Description = "Terminates the interaction" }
+    ];
+}
+
+// 2. Initialize and run with optional parameters
+var options = new ApiRequestOptions { Temperature = 0.7f };
+var ai = new AiManager(
+    modelName: "qwen2.5-coder:7b", 
+    appInstance: new MyAiApp(),
+    options: options,
+    ollamaBaseUrl: "http://localhost:11434"
+);
+await ai.StartAsync(userInput);
+```
+
 ### Demo: [AI Time Manager](https://github.com/notNullThen/ai-ollama-time-manager)
 
 ## Local LLM Support
