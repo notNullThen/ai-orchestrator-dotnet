@@ -5,10 +5,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Types;
 
-internal sealed class OllamaClient
+internal sealed class OllamaClient(string? baseUrl = "http://localhost:11434")
 {
-    private const string BaseUrl = "http://localhost:11434";
-
     private readonly HttpClient _httpClient = new();
 
     public async Task<ApiResponse> RequestAsync(
@@ -19,7 +17,7 @@ internal sealed class OllamaClient
     )
     {
         var requestMessage = GetRequestMessage(
-            url: $"{BaseUrl}/api/generate",
+            url: $"{baseUrl}/api/generate",
             request: new()
             {
                 Model = model,

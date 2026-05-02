@@ -9,7 +9,8 @@ using Utilities;
 public sealed class AiManager(
     string modelName,
     AiAppFacadeBase appInstance,
-    ApiRequestOptions? options = null
+    ApiRequestOptions? options = null,
+    string? ollamaBaseUrl = null
 )
 {
     public ContextHandler<FunctionCallResponse> ContextHandler => _contextHandler;
@@ -20,7 +21,10 @@ public sealed class AiManager(
     private object? _aiOutput;
     private bool _shouldExit;
 
-    private readonly OllamaClient _ollamaClient = new();
+    private readonly OllamaClient _ollamaClient = ollamaBaseUrl is null
+        ? new()
+        : new(ollamaBaseUrl);
+
     private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
 
     private string ManagementPrompt =>
