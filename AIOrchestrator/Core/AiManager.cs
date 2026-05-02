@@ -91,11 +91,10 @@ You MUST process the STATE and reply with EXACTLY ONE JSON function call.
 
             await ConversationAsync();
         }
-        catch (Exception exception)
+        catch (Exception)
         {
-            Console.WriteLine($"[AiManager] Error during conversation: {exception.Message}");
             _shouldExit = true;
-            throw; // Re-throw to inform the caller, but now we've set _shouldExit
+            throw;
         }
     }
 
@@ -118,31 +117,16 @@ You MUST process the STATE and reply with EXACTLY ONE JSON function call.
                     NumPredict = options.NumPredict,
                 };
 
-        try
-        {
-            var ollamaResponse = await _ollamaClient.RequestAsync(
-                prompt: prompt,
-                model: modelName,
-                options: apiOptions
-            );
+        var ollamaResponse = await _ollamaClient.RequestAsync(
+            prompt: prompt,
+            model: modelName,
+            options: apiOptions
+        );
 
-            var response = ollamaResponse.Response;
-            var functionJson = MarkdownProcess.RemoveCodeMarkdown(response);
+        var response = ollamaResponse.Response;
+        var functionJson = MarkdownProcess.RemoveCodeMarkdown(response);
 
-            return MethodInvoker.Deserialize(functionJson);
-        }
-        catch (Exception exception)
-        {
-            Console.WriteLine("[AiManager] ERROR decoding AI response:");
-            Console.WriteLine($"Exception: {exception.Message}");
-
-            if (exception.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {exception.InnerException.Message}");
-            }
-
-            throw;
-        }
+        return MethodInvoker.Deserialize(functionJson);
     }
 
     public void Exit()

@@ -44,12 +44,24 @@ internal sealed class OllamaClient
 
     public async Task<ApiResponse> GetResponseAsync(HttpRequestMessage requestMessage)
     {
-        var response = await _httpClient.SendAsync(
-            requestMessage,
-            HttpCompletionOption.ResponseHeadersRead
-        );
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.SendAsync(
+                requestMessage,
+                HttpCompletionOption.ResponseHeadersRead
+            );
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == null)
+            {
+                throw new Exception("Couldn't connect to Ollama server", ex);
+            }
 
-        response.EnsureSuccessStatusCode();
+            throw new Exception("Ollama API error", ex);
+        }
 
         var responseJson = await response.Content.ReadAsStringAsync();
 
