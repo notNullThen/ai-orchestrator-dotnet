@@ -37,7 +37,7 @@ YOU MUST strictly adhere to the following JSON format.
   ""Parameters"": [""value"", ""another-value"", ...]
 }}
 
-JSON format types:
+You MUST strictly follow these JSON format types:
 - ""Function"": string
 - ""Parameters"": string[]
 
