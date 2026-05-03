@@ -3,7 +3,14 @@
 [![NuGet](https://img.shields.io/nuget/v/AIOrchestrator)](https://www.nuget.org/packages/AIOrchestrator)
 [![GitHub](https://img.shields.io/badge/github-repo-black.svg)](https://github.com/notNullThen/ai-orchestrator-dotnet)
 
-A powerful .NET library that uses local LLMs for intelligent function orchestration and routing.
+A .NET library that uses local LLMs for intelligent function orchestration and routing.
+
+AIOrchestrator turns an LLM into a **decision engine** that:
+
+- 🎯 selects which function to call  
+- ⚙️ executes functions step by step  
+- 🧠 maintains context and history  
+- 🛑 stops when the task is complete  
 
 ### Installation
 
