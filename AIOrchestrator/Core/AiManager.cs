@@ -10,7 +10,8 @@ public sealed class AiManager(
     string modelName,
     AiAppFacadeBase appInstance,
     ApiRequestOptions? options = null,
-    string? ollamaBaseUrl = null
+    string? ollamaBaseUrl = null,
+    TimeSpan? ollamaHttpTimeout = null
 )
 {
     public ContextHandler<FunctionCallResponse> ContextHandler => _contextHandler;
@@ -21,9 +22,7 @@ public sealed class AiManager(
     private object? _aiOutput;
     private bool _shouldExit;
 
-    private readonly OllamaClient _ollamaClient = ollamaBaseUrl is null
-        ? new()
-        : new(ollamaBaseUrl);
+    private readonly OllamaClient _ollamaClient = new(ollamaBaseUrl, ollamaHttpTimeout);
 
     private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
 

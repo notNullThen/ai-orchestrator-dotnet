@@ -5,9 +5,14 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Types;
 
-internal sealed class OllamaClient(string? baseUrl = "http://localhost:11434")
+internal sealed class OllamaClient(
+    string? baseUrl = "http://localhost:11434",
+    TimeSpan? timeout = null
+)
 {
-    private readonly HttpClient _httpClient = new();
+    private readonly HttpClient _httpClient = timeout is null
+        ? new()
+        : new() { Timeout = (TimeSpan)timeout };
 
     public async Task<ApiResponse> RequestAsync(
         string prompt,
