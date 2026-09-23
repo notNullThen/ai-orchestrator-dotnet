@@ -45,15 +45,15 @@ using AIOrchestrator.Core.AiAppFacade.Types;
 using AIOrchestrator.OllamaClient.Types;
 
 // 1. Define your app capabilities by inheriting from AiAppFacadeBase
-public class MyAiApp : AiAppFacadeBase
+public class MyAiApp : AiAppFacadeBase(false)
 {
     public string GetSystemStatus() => "All systems nominal.";
 
     public override string GetConstraints() => "Do your functionality...";
 
     public override AppDescription GetDescription() => [
-        new() { Name = nameof(GetSystemStatus), Description = "Returns current system status" },
-        new() { Name = nameof(Exit), Description = "Terminates the interaction" }
+        new() { Name = nameof(GetSystemStatus), Description = "Returns current system status", Parameters = [] },
+        new() { Name = nameof(Exit), Description = "Terminates the interaction", Parameters = [] }
     ];
 }
 
@@ -65,5 +65,23 @@ var ai = new AiManager(
     options: options,
     ollamaBaseUrl: "http://localhost:11434"
 );
+await ai.StartAsync(userInput);
+```
+
+### Optional reflective recovery
+
+Set `HealingConstraintsFilePath` to enable reflective recovery. On a request or function-call error, the library sends the error, available functions, and successful-call history to Ollama. It saves a returned plain-text constraint in the Markdown file and resumes the normal management prompt. If the model cannot identify a useful constraint, the recovery prompt tells it to return an `Exit` JSON function call; the library then calls the facade's `Exit()` method.
+
+This approach is inspired by the failure reflection and corrective guidance in Apple's [PROOF-Gen publication](https://machinelearning.apple.com/research/proof-gen-optimized-distillation).
+
+```csharp
+var ai = new AiManager(
+    modelName: "qwen2.5-coder:7b",
+    appInstance: new MyAiApp(),
+    ollamaBaseUrl: "http://localhost:11434"
+)
+{
+    HealingConstraintsFilePath = "./ai-constraints.md"
+};
 await ai.StartAsync(userInput);
 ```

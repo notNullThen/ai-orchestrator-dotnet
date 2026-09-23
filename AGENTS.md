@@ -12,6 +12,7 @@ Keep this file concise. When a change invalidates an architectural statement her
 
 - `AIOrchestrator/`: packable library; no external runtime package dependencies.
 - `AIOrchestrator/Core/AiManager.cs`: conversation lifecycle and management-prompt construction.
+- `AIOrchestrator/Core/ReflectiveRecovery.cs`: optional error analysis, `Exit` fallback, and Markdown constraint storage.
 - `AIOrchestrator/Core/AiAppFacade/`: application-facing facade base and function-description models.
 - `AIOrchestrator/Core/FunctionsDeserializer*.cs`: extracts one or more JSON calls from model output.
 - `AIOrchestrator/Core/MethodInvoker.cs`: reflection lookup and string-to-parameter conversion.
@@ -46,20 +47,19 @@ The model-facing call shape is:
 - Every `FunctionDescription` requires `Name`, `Description`, and `Parameters`; use an empty list for a parameterless method.
 - Describe `Exit` to the model. It is inherited from `AiAppFacadeBase` and is how a normal conversation terminates.
 - Tool methods should currently be synchronous and return values that `System.Text.Json` can serialize. Reflection does not await `Task`/`ValueTask` results.
-- Method lookup uses the exact emitted name and includes public/non-public and instance/static methods. Avoid overloads for exposed tool names.
+- Method lookup uses the exact emitted name and includes public instance/static methods. Avoid overloads for exposed tool names.
 - `multipleFunctionsAtOneResponse` changes prompt policy only. Returned calls are still executed sequentially in response order.
 - Preserve cancellation-token propagation through the manager and Ollama HTTP calls.
 - This is a published NuGet library. Treat public types and signatures as compatibility-sensitive.
 
 ## Current Implementation Caveats
 
-- `AiManager` currently passes its nullable `ollamaBaseUrl` argument directly to `OllamaClient`. Until that implementation changes, callers should explicitly pass `http://localhost:11434` (or another absolute base URL); omitting it does not activate `OllamaClient`'s own default.
+- Reflective recovery is opt-in through `AiManager.HealingConstraintsFilePath`. Any non-cancellation request or invocation error is sent to the recovery prompt. A plain-text rule is added to the management prompt; a parsed `Exit` JSON function call invokes the facade's `Exit` method.
 - A manager's `ContextHandler` is not cleared by `StartAsync`; reusing the same manager carries earlier function history into later runs.
 - If a multi-call response contains `Exit`, later calls in that same parsed response are still invoked because the `foreach` is not stopped.
 - Function extraction is regex-delimited rather than a general JSON stream parser. Output without a recognized function object produces an empty list and another loop iteration; nested JSON or delimiter-like text inside values is fragile.
 - Missing arguments become `string.Empty` before conversion. Extra arguments throw. Optional/default C# parameter values are not honored.
 - `ContextHandler.OnContextUpdated` receives the mutable backing `List<T>`, although the public `Context` property is read-only.
-- The README quick-start currently predates the required `AiAppFacadeBase(bool)` constructor argument and required `FunctionDescription.Parameters` property.
 
 ## Build, Test, and Format
 

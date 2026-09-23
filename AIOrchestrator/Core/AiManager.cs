@@ -1,5 +1,6 @@
 namespace AIOrchestrator.Core;
 
+using System.Text.Json;
 using AiAppFacade;
 using OllamaClient;
 using OllamaClient.Types;
@@ -13,6 +14,9 @@ public sealed class AiManager(
     TimeSpan? ollamaHttpTimeout = null
 )
 {
+    /// <summary>Set a Markdown file path to enable recovery from invalid model calls.</summary>
+    public string? HealingConstraintsFilePath { get; init; }
+
     public ContextHandler<FunctionCallResponse> ContextHandler => _contextHandler;
 
     public ErrorHandler ErrorHandler =>
@@ -24,11 +28,34 @@ public sealed class AiManager(
     private MethodInvoker _methodInvoker => _methodInvokerField ??= new MethodInvoker();
 
     private string? _userInput;
+    private string? _latestModelOutput;
     private bool _shouldExit;
+    private ReflectiveRecovery? _reflectiveRecovery;
 
     private readonly OllamaClient _ollamaClient = new(ollamaBaseUrl, ollamaHttpTimeout);
 
     private readonly ContextHandler<FunctionCallResponse> _contextHandler = new();
+
+    private ReflectiveRecovery? Recovery
+    {
+        get
+        {
+            if (HealingConstraintsFilePath is null)
+            {
+                return null;
+            }
+
+            _reflectiveRecovery ??= new ReflectiveRecovery(
+                HealingConstraintsFilePath,
+                appInstance,
+                _ollamaClient,
+                modelName,
+                options
+            );
+
+            return _reflectiveRecovery;
+        }
+    }
 
     private string ManagementPrompt =>
         @$"
@@ -61,6 +88,7 @@ FUNCTIONS:
 
 CONSTRAINTS:
 {appInstance.GetConstraints()}
+{Recovery?.Constraints}
 
 STATE:
 User: {_userInput}
@@ -81,32 +109,15 @@ History: {_contextHandler.GetContextJson()}
 
         try
         {
+            if (Recovery is not null)
+            {
+                await Recovery.LoadAsync(cancellationToken);
+            }
+
             while (!_shouldExit)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
-                var functionsList = await RequestFunctionAsync(
-                    prompt: ManagementPrompt,
-                    cancellationToken
-                );
-
-                foreach (var function in functionsList)
-                {
-                    if (function == null)
-                    {
-                        continue;
-                    }
-
-                    var functionResult = _methodInvoker.Execute(function, appInstance);
-
-                    var functionResponse = new FunctionCallResponse
-                    {
-                        Function = function.Function,
-                        Parameters = function.Parameters,
-                        Response = functionResult,
-                    };
-                    _contextHandler.AddToContext(functionResponse);
-                }
+                await ProcessStepAsync(cancellationToken);
             }
         }
         catch (OperationCanceledException)
@@ -124,6 +135,51 @@ History: {_contextHandler.GetContextJson()}
                 ex
             );
         }
+    }
+
+    private async Task ProcessStepAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            _latestModelOutput = null;
+            var functions = await RequestFunctionAsync(ManagementPrompt, cancellationToken);
+            if (Recovery is not null && functions.Count == 0)
+            {
+                throw new JsonException("The model returned no function call.");
+            }
+
+            foreach (var function in functions)
+            {
+                if (function is not null)
+                {
+                    ExecuteFunction(function);
+                }
+            }
+        }
+        catch (Exception exception)
+            when (Recovery is not null && exception is not OperationCanceledException)
+        {
+            var result = await Recovery.HealAsync(
+                exception,
+                _latestModelOutput,
+                _contextHandler.GetContextJson(),
+                cancellationToken
+            );
+            ErrorHandler.SetLatestAiOutput(result);
+        }
+    }
+
+    private void ExecuteFunction(FunctionCall function)
+    {
+        var functionResult = _methodInvoker.Execute(function, appInstance);
+        _contextHandler.AddToContext(
+            new FunctionCallResponse
+            {
+                Function = function.Function,
+                Parameters = function.Parameters,
+                Response = functionResult,
+            }
+        );
     }
 
     public async Task StartAsync(string userInput, CancellationToken cancellationToken = default)
@@ -159,6 +215,7 @@ History: {_contextHandler.GetContextJson()}
 
         var response = ollamaResponse.Response;
 
+        _latestModelOutput = response;
         ErrorHandler.SetLatestAiOutput(response);
 
         return FunctionsDeserializer.Deserialize(response);

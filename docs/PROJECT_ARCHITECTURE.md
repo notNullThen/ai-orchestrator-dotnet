@@ -20,11 +20,12 @@ There are two projects:
 | Component | Responsibility | Key collaborators |
 | --- | --- | --- |
 | `AiManager` | Owns run state, builds the management prompt, requests model output, dispatches calls, records results, and controls termination. | `AiAppFacadeBase`, `OllamaClient`, `FunctionsDeserializer`, `MethodInvoker`, `ContextHandler`, `ErrorHandler` |
+| `ReflectiveRecovery` | Optionally asks the model for one constraint after an error, stores it in Markdown, or calls `Exit` on an `Exit` reply. | `AiManager`, `AiAppFacadeBase`, `OllamaClient` |
 | `AiAppFacadeBase` | Consumer extension point. Stores the multiple-call mode and exposes the inherited `Exit` tool through an `OnExit` callback. | Consumer facade, `AiManager` |
 | `AppDescription` and related types | Describe callable method names, their purpose, and ordered parameters to the model. | Management prompt |
 | `FunctionsDeserializer` | Finds zero or more function-shaped JSON objects in response text and deserializes each to `FunctionCall`. | Generated regexes, `System.Text.Json` |
 | `MethodInvoker` | Resolves a method by name, converts positional strings to declared parameter types, and invokes it. | Reflection, `TypeDescriptor` |
-| `ContextHandler<T>` | Holds the in-memory append-only history and serializes it with camel-case properties and indented JSON. | `AiManager`, prompt, observers |
+| `ContextHandler<T>` | Holds the in-memory append-only history and serializes it with camel-case properties and compact JSON. | `AiManager`, prompt, observers |
 | `ErrorHandler` | Captures run diagnostics and formats them into the manager's outer exception. | `AiManager`, context |
 | `OllamaClient` | Calls Ollama's tags and generate endpoints with `HttpClient`; generation is non-streaming. | Ollama REST API |
 | `OllamaModels` | Public convenience API for listing locally available Ollama models. | `OllamaClient.GetTagsAsync` |
@@ -33,7 +34,7 @@ There are two projects:
 
 The main consumer workflow uses these public types:
 
-- `AiManager`: constructed with model name, facade, optional `ApiRequestOptions`, Ollama base URL, and HTTP timeout. Exposes `StartAsync`, `ConversationAsync`, `Exit`, `GetManagementPrompt`, `ContextHandler`, and `ErrorHandler`.
+- `AiManager`: constructed with model name, facade, optional `ApiRequestOptions`, Ollama base URL, and HTTP timeout. Its init-only `HealingConstraintsFilePath` enables recovery. Exposes `StartAsync`, `ConversationAsync`, `Exit`, `GetManagementPrompt`, `ContextHandler`, and `ErrorHandler`.
 - `AiAppFacadeBase`: subclass with `GetDescription` and `GetConstraints`; constructor selects whether the prompt permits multiple calls in one response.
 - `AppDescription`, `FunctionDescription`, and `FunctionParameter`: model-facing tool metadata.
 - `FunctionCall` and `FunctionCallResponse`: parsed instruction and history record.
@@ -49,7 +50,7 @@ The main consumer workflow uses these public types:
 
 ### Construction
 
-`AiManager` captures its primary-constructor arguments. It immediately creates one internal `OllamaClient` and one `ContextHandler<FunctionCallResponse>`. `ErrorHandler` and `MethodInvoker` are initialized lazily and then reused.
+`AiManager` captures its primary-constructor arguments. It immediately creates one internal `OllamaClient` and one `ContextHandler<FunctionCallResponse>`. `ErrorHandler`, `MethodInvoker`, and the optional `ReflectiveRecovery` are initialized lazily and then reused.
 
 Only `Temperature` and `NumPredict` are copied from the caller's `ApiRequestOptions` into a fresh options object for each request. Expanding request options therefore requires coordinated changes to the public DTO and this copy operation.
 
@@ -75,13 +76,19 @@ It does not clear prior context. A reused manager is therefore a stateful contin
 5. Parse zero or more calls.
 6. For each non-null call, invoke the facade method and append `{ function, parameters, response }` to context.
 
-Each new prompt includes the complete serialized history. There is no context-window trimming, summarization, maximum-iteration guard, retry policy, or backoff.
+Each new prompt includes the complete serialized history. There is no context-window trimming, summarization, maximum-iteration guard, or backoff. Optional healing has no retry limit.
 
 ### Termination and failure
 
 Normal termination happens only when invoked application code calls the inherited facade `Exit`, whose callback sets the manager's `_shouldExit` flag. The `Exit` call itself is still recorded in context after reflection returns. In multiple-call mode, changing the flag does not break the current `foreach`, so remaining calls from that model response execute before the outer loop ends.
 
 Cancellation observed inside the loop sets `_shouldExit`, then rethrows the original `OperationCanceledException`. A token that is already cancelled at method entry is checked before the `try` block and propagates without changing the flag. Any other exception sets `_shouldExit` and is wrapped with the message `An error occurred during AI conversation execution.` plus the immediate failure message, model name, user input, latest raw model output, and full context. Lower layers often add their own inner exception and context.
+
+### Optional reflective recovery
+
+Setting `HealingConstraintsFilePath` enables `ReflectiveRecovery`. At the start of a conversation, it loads the Markdown file. Any non-cancellation request or function invocation error triggers one separate Ollama request. The hardcoded prompt contains `appInstance.GetDescription()`, existing constraints, the latest raw model output, the inner exception when present (otherwise the outer exception), and successful-call history from `ContextHandler.GetContextJson()`. A plain-text reply is appended to the Markdown file and included in later management prompts. If the model cannot identify a useful constraint, the prompt instructs it to return an `Exit` JSON function call. The existing function-call parser recognizes that reply; it invokes the facade's `Exit()` and does not write a constraint.
+
+After a constraint reply, the manager sends its normal management prompt again. Earlier successful calls remain in history; unexecuted calls from the failed multi-call response are discarded. Application method exceptions are also sent to healing and may have caused side effects before throwing. With no retry limit, a model that repeatedly produces errors without returning an `Exit` call can keep the loop running. The existing constructor and behavior remain unchanged when the file path is unset.
 
 ## Management Prompt Protocol
 
@@ -93,6 +100,7 @@ Cancellation observed inside the loop sets `_shouldExit`, then rethrows the orig
 - rules directing the model to inspect history and call `Exit` when satisfied;
 - serialized `AppDescription` output;
 - free-form facade constraints;
+- learned constraints from the Markdown file when healing is enabled;
 - current user input and full history.
 
 Descriptions are not validated against real methods. A mismatch fails only when reflection dispatch occurs. Parameter names in `FunctionParameter` are explanatory; the emitted call contains values only, in array order.
@@ -118,7 +126,7 @@ Tests currently cover splitting multiple calls, parameterless calls, casing, and
 
 ## Reflection Dispatch
 
-`MethodInvoker.Execute` searches the concrete facade type for the emitted function name with instance, static, public, and non-public binding flags. Lookup is name-based and case-sensitive under normal reflection behavior. Overloads can make lookup ambiguous, and tool descriptions do not restrict a call to public methods.
+`MethodInvoker.Execute` searches the concrete facade type for the emitted function name with instance, static, and public binding flags. Lookup is name-based and case-sensitive under normal reflection behavior. Overloads can make lookup ambiguous, and tool descriptions do not restrict a call to described methods.
 
 Raw parameters are converted in declaration order using `TypeDescriptor.GetConverter(parameterType).ConvertFromString(...)`:
 
@@ -131,7 +139,7 @@ Invocation is synchronous. An async method returns its task object as the tool r
 
 ## Context and Observability
 
-After every successful invocation, `AiManager` stores a `FunctionCallResponse` containing the original name and raw parameter strings plus the returned object. Context JSON is indented, camel-cased, and configured to write enums as strings. The shared serializer options also enable case-insensitive property matching, although `ContextHandler` currently exposes serialization methods only.
+After every successful invocation, `AiManager` stores a `FunctionCallResponse` containing the original name and raw parameter strings plus the returned object. Context JSON is compact, camel-cased, and configured to write enums as strings. The shared serializer options also enable case-insensitive property matching, although `ContextHandler` currently exposes serialization methods only.
 
 `ContextHandler.Context` exposes a read-only view. `OnContextUpdated`, however, passes the backing `List<T>` itself as event data after each append. `GetLastContextPartJson` serializes `LastOrDefault`, producing JSON `null` for an empty context.
 
@@ -141,9 +149,9 @@ There is no built-in logging. Consumers can subscribe to `OnContextUpdated`, ins
 
 Generation uses `POST {baseUrl}/api/generate` with JSON containing model, prompt, role text, `stream: false`, and optional settings. The complete response body is read before the HTTP status is evaluated so a non-success response can include the raw Ollama error body in the exception. `ResponseHeadersRead` avoids buffering headers and content together, but the response text itself is still fully buffered.
 
-Model discovery uses `GET {baseUrl}/api/tags` and returns the `models` list. The public discovery helper has a working default base URL. The manager path differs: its `ollamaBaseUrl` defaults to `null` and that explicit null is forwarded to the internal client, overriding the client's constructor default. Current manager consumers should pass an absolute URL explicitly.
+Model discovery uses `GET {baseUrl}/api/tags` and returns the `models` list. The internal client defaults to `http://localhost:11434` when the manager's `ollamaBaseUrl` is null.
 
-Each internal client owns a new `HttpClient`; clients and managers are not disposable. There is no injected handler/client seam, authentication, streaming, chat endpoint support, or retry logic.
+Each internal client creates a new `HttpClient` for each request; clients and managers are not disposable. There is no injected handler/client seam, authentication, streaming, chat endpoint support, or HTTP retry logic.
 
 ## Testing and Release
 
@@ -159,7 +167,7 @@ The library project is packable and embeds the root README in the package. On a 
 ## Change-Impact Guide
 
 - Changing the model call schema requires coordinated updates to `ManagementPrompt`, `FunctionCall`, parser extraction, tests, and possibly `MethodInvoker`.
-- Adding an Ollama request option requires updating `ApiRequestOptions` and the per-request copy in `AiManager.GetFunctionAsync`.
+- Adding an Ollama request option requires updating `ApiRequestOptions` and the per-request copy in `AiManager.RequestFunctionAsync`.
 - Changing history serialization affects both model behavior and diagnostics; update prompt-oriented tests when adding them.
 - Adding native async tool support requires awaiting invocation results before constructing `FunctionCallResponse` and defining behavior for generic/non-generic task-like values.
 - Adding context reset or multi-run semantics should explicitly decide whether `StartAsync` starts a fresh conversation or continues one.
