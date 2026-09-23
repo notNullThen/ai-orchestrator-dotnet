@@ -10,8 +10,9 @@ public sealed class FunctionsDeserializerTests
     {
         const string response =
             /*lang=json,strict*/
-                                 "{\"function\":\"WithParameters\",\"parameters\":[\"value\"]} "
-            + /*lang=json,strict*/ "{\"function\":\"WithoutParameters\"}";
+            "{\"function\":\"WithParameters\",\"parameters\":[\"value\"]} "
+            + /*lang=json,strict*/
+            "{\"function\":\"WithoutParameters\"}";
 
         var functions = FunctionsDeserializer.Deserialize(response);
 
@@ -30,8 +31,9 @@ public sealed class FunctionsDeserializerTests
     {
         const string response =
             /*lang=json,strict*/
-                                 "{ \"function\" : \"WithParameters\", \"parameters\" : []   } "
-            + /*lang=json,strict*/ "{ \"function\" : \"WithoutParameters\"   }";
+            "{ \"function\" : \"WithParameters\", \"parameters\" : []   } "
+            + /*lang=json,strict*/
+            "{ \"function\" : \"WithoutParameters\"   }";
 
         var functions = FunctionsDeserializer.Deserialize(response);
 

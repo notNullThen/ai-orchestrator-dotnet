@@ -5,4 +5,10 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Style", "IDE0290:Use primary constructor", Justification = "<Pending>", Scope = "member", Target = "~M:AIOrchestrator.OllamaClient.OllamaClient.#ctor(System.String,System.Nullable{System.TimeSpan})")]
+[assembly: SuppressMessage(
+    "Style",
+    "IDE0290:Use primary constructor",
+    Justification = "<Pending>",
+    Scope = "member",
+    Target = "~M:AIOrchestrator.OllamaClient.OllamaClient.#ctor(System.String,System.Nullable{System.TimeSpan})"
+)]
