@@ -71,6 +71,14 @@ dotnet build AIOrchestrator.sln --configuration Release
 dotnet test AIOrchestrator.sln --configuration Release
 ```
 
+For a local NuGet publish, do not add or change a version in `AIOrchestrator.csproj`. Choose the package version from the latest tag and local feed contents, then pass it to `dotnet pack`:
+
+```bash
+dotnet pack AIOrchestrator/AIOrchestrator.csproj --configuration Release --output <local-feed-directory> -p:PackageVersion=<version>
+```
+
+Check `dotnet nuget list source` for the registered local feed path. The tag-driven GitHub workflow sets `PackageVersion` separately for public releases.
+
 Formatting is configured through the local CSharpier tool:
 
 ```bash
