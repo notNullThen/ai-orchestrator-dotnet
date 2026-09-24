@@ -54,7 +54,7 @@ The model-facing call shape is:
 
 ## Current Implementation Caveats
 
-- Reflective recovery is opt-in through `AiManager.HealingConstraintsFilePath`. Any non-cancellation request or invocation error is sent to the recovery prompt. A plain-text rule is added to the management prompt; a parsed `Exit` JSON function call invokes the facade's `Exit` method.
+- Reflective recovery is opt-in through the `AiManager` constructor's `healingConstraintsFilePath`. Any non-cancellation request or invocation error is sent to the recovery prompt. A plain-text rule is added to the management prompt; a parsed `Exit` JSON function call invokes the facade's `Exit` method. An optional event announces analysis, and an async callback can pause after a new constraint is saved.
 - A manager's `ContextHandler` is not cleared by `StartAsync`; reusing the same manager carries earlier function history into later runs.
 - If a multi-call response contains `Exit`, later calls in that same parsed response are still invoked because the `foreach` is not stopped.
 - Function extraction is regex-delimited rather than a general JSON stream parser. Output without a recognized function object produces an empty list and another loop iteration; nested JSON or delimiter-like text inside values is fragile.

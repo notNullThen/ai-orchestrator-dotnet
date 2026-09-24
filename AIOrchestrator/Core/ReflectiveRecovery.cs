@@ -24,37 +24,52 @@ internal sealed class ReflectiveRecovery(
 
     public async Task<string> HealAsync(
         Exception error,
+        string? userInput,
         string? latestModelOutput,
         string contextJson,
+        Action<string>? onPromptPrepared,
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        await LoadAsync(cancellationToken);
+        var errorDetails = error.InnerException is null
+            ? error.Message
+            : $"{error.Message}\nCause: {error.GetBaseException().Message}";
 
         var prompt = $$"""
             SYSTEM:
-            Analyze the error. If you can identify a way to prevent it, return one concise constraint.
-            Base the constraint on the available functions and the error.
-            Return only the constraint as plain text, without Markdown, JSON, or explanations.
-            If there is no clue why the error happened, instead return only this JSON function call:
+            Understand the user's task and story, successful calls, available functions,
+            instructions, constraints, latest model output, failed call, and error.
+            Return one concise NEW constraint that would prevent this wrong output or error
+            from happening again. If an existing constraint already covers it, or the cause
+            is unclear, return only this JSON call instead:
             {"Function":"Exit","Parameters":[]}
+            Otherwise return only the constraint as plain text, without explanation or Markdown.
+
+            USER TASK:
+            {{userInput}}
+
+            HISTORY / STORY:
+            {{contextJson}}
 
             FUNCTIONS:
             {{appInstance.GetDescription()}}
 
-            CURRENT CONSTRAINTS:
+            APPLICATION INSTRUCTIONS AND CONSTRAINTS:
             {{appInstance.GetConstraints()}}
+
+            EXISTING LEARNED CONSTRAINTS FROM FILE:
             {{_constraints}}
 
             LATEST MODEL OUTPUT:
             {{latestModelOutput}}
 
-            HISTORY:
-            {{contextJson}}
-
-            ERROR:
-            {{error.InnerException ?? error}}
+            FAILED CALL AND ERROR:
+            {{errorDetails}}
             """;
+
+        onPromptPrepared?.Invoke(prompt);
 
         var response = await ollamaClient.RequestAsync(
             prompt,
@@ -69,7 +84,7 @@ internal sealed class ReflectiveRecovery(
             .Deserialize(answer)
             .Any(call => call?.Function == nameof(appInstance.Exit));
 
-        if (answer.Length == 0 || isExitCall)
+        if (answer.Length == 0 || isExitCall || IsExistingConstraint(answer))
         {
             appInstance.Exit();
             return response.Response;
@@ -81,6 +96,16 @@ internal sealed class ReflectiveRecovery(
         _constraints += answer + "\n";
 
         return response.Response;
+    }
+
+    private bool IsExistingConstraint(string answer)
+    {
+        var proposed = answer.Trim().Trim('"');
+        return _constraints
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(line =>
+                string.Equals(line.Trim('"'), proposed, StringComparison.OrdinalIgnoreCase)
+            );
     }
 
     private async Task CreateConstraintsFileAsync(CancellationToken cancellationToken)

@@ -9,15 +9,27 @@ using Types;
 public sealed class AiManager(
     string modelName,
     AiAppFacadeBase appInstance,
+    string? healingConstraintsFilePath = null,
     ApiRequestOptions? options = null,
     string? ollamaBaseUrl = null,
     TimeSpan? ollamaHttpTimeout = null
 )
 {
-    /// <summary>Set a Markdown file path to enable recovery from invalid model calls.</summary>
-    public string? HealingConstraintsFilePath { get; init; }
-
     public ContextHandler<FunctionCallResponse> ContextHandler => _contextHandler;
+
+    /// <summary>Contents of the loaded healing constraints file, or an empty string if none exists.</summary>
+    public string LearnedConstraints => Recovery?.Constraints ?? string.Empty;
+
+    /// <summary>
+    /// Raised with the full recovery prompt just before it is sent to the model.
+    /// </summary>
+    public event EventHandler<string>? HealingStarted;
+
+    /// <summary>
+    /// Optional callback that receives a newly saved constraint. The manager awaits it before
+    /// continuing the conversation, so the application can pause for review.
+    /// </summary>
+    public Func<string, CancellationToken, Task>? OnConstraintGeneratedAsync { get; set; }
 
     public ErrorHandler ErrorHandler =>
         _errorHandlerField ??= new ErrorHandler(modelName, _contextHandler);
@@ -40,13 +52,13 @@ public sealed class AiManager(
     {
         get
         {
-            if (HealingConstraintsFilePath is null)
+            if (healingConstraintsFilePath is null)
             {
                 return null;
             }
 
             _reflectiveRecovery ??= new ReflectiveRecovery(
-                HealingConstraintsFilePath,
+                healingConstraintsFilePath,
                 appInstance,
                 _ollamaClient,
                 modelName,
@@ -88,7 +100,9 @@ FUNCTIONS:
 
 CONSTRAINTS:
 {appInstance.GetConstraints()}
-{Recovery?.Constraints}
+
+LEARNED CONSTRAINTS:
+{Recovery?.Constraints ?? "No learned constraints."}
 
 STATE:
 User: {_userInput}
@@ -161,11 +175,18 @@ History: {_contextHandler.GetContextJson()}
         {
             var result = await Recovery.HealAsync(
                 exception,
+                _userInput,
                 _latestModelOutput,
                 _contextHandler.GetContextJson(),
+                prompt => HealingStarted?.Invoke(this, prompt),
                 cancellationToken
             );
             ErrorHandler.SetLatestAiOutput(result);
+
+            if (!_shouldExit && OnConstraintGeneratedAsync is not null)
+            {
+                await OnConstraintGeneratedAsync(result.Trim(), cancellationToken);
+            }
         }
     }
 
